@@ -5,9 +5,9 @@ import (
 	"strings"
 	"testing"
 
-	fberrors "github.com/filebrowser/filebrowser/v2/errors"
-	"github.com/filebrowser/filebrowser/v2/settings"
-	"github.com/filebrowser/filebrowser/v2/users"
+	fberrors "github.com/nyxlumen/nyx-browser/v2/errors"
+	"github.com/nyxlumen/nyx-browser/v2/settings"
+	"github.com/nyxlumen/nyx-browser/v2/users"
 )
 
 type mockUserStore struct {

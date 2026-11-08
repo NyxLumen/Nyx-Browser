@@ -18,9 +18,9 @@ import (
 	"github.com/spf13/viper"
 	yaml "gopkg.in/yaml.v3"
 
-	"github.com/filebrowser/filebrowser/v2/settings"
-	"github.com/filebrowser/filebrowser/v2/storage"
-	"github.com/filebrowser/filebrowser/v2/storage/bolt"
+	"github.com/nyxlumen/nyx-browser/v2/settings"
+	"github.com/nyxlumen/nyx-browser/v2/storage"
+	"github.com/nyxlumen/nyx-browser/v2/storage/bolt"
 )
 
 const databasePermissions = 0640
@@ -68,7 +68,7 @@ func dbExists(path string) (bool, error) {
 }
 
 // Generate the replacements for all environment variables. This allows to
-// use FB_BRANDING_DISABLE_EXTERNAL environment variables, even when the
+// use NYX_BRANDING_DISABLE_EXTERNAL environment variables, even when the
 // option name is branding.disableExternal.
 func generateEnvKeyReplacements(cmd *cobra.Command) []string {
 	replacements := []string{}
@@ -85,30 +85,31 @@ func generateEnvKeyReplacements(cmd *cobra.Command) []string {
 func initViper(cmd *cobra.Command) (*viper.Viper, error) {
 	v := viper.New()
 
+	// Ensure persistent flags are merged into cmd.Flags()
+	cmd.PersistentFlags().VisitAll(func(f *pflag.Flag) {
+		if cmd.Flags().Lookup(f.Name) == nil {
+			cmd.Flags().AddFlag(f)
+		}
+	})
+
 	// Get config file from flag
 	cfgFile, err := cmd.Flags().GetString("config")
 	if err != nil {
 		return nil, err
 	}
 
-	// Configuration file
-	if cfgFile == "" {
-		home, err := homedir.Dir()
-		if err != nil {
-			return nil, err
-		}
-		v.AddConfigPath(".")
-		v.AddConfigPath(home)
-		v.AddConfigPath("/etc/filebrowser/")
-		v.SetConfigName(".filebrowser")
-	} else {
-		v.SetConfigFile(cfgFile)
-	}
-
 	// Environment variables
-	v.SetEnvPrefix("FB")
+	v.SetEnvPrefix("NYX")
 	v.AutomaticEnv()
 	v.SetEnvKeyReplacer(strings.NewReplacer(generateEnvKeyReplacements(cmd)...))
+
+	// Bind fallback FB_<KEY> environment variables so NYX_ takes strict precedence
+	// when both are provided, and FB_ works when NYX_ is absent.
+	cmd.Flags().VisitAll(func(f *pflag.Flag) {
+		fbSnake := "FB_" + strings.ToUpper(lo.SnakeCase(f.Name))
+		fbUpper := "FB_" + strings.ToUpper(f.Name)
+		_ = v.BindEnv(f.Name, fbSnake, fbUpper)
+	})
 
 	// Bind the flags
 	err = v.BindPFlags(cmd.Flags())
@@ -116,20 +117,83 @@ func initViper(cmd *cobra.Command) (*viper.Viper, error) {
 		return nil, err
 	}
 
-	// Read in configuration
-	if err := v.ReadInConfig(); err != nil {
-
-		if errors.As(err, &viper.ConfigParseError{}) {
+	// Configuration file resolution:
+	// If explicit cfgFile provided, load it directly.
+	// Otherwise search for .nyx in (., home, /etc/nyx/, /etc/filebrowser/).
+	// Fallback to .filebrowser in the same directories with an informative notice.
+	if cfgFile != "" {
+		v.SetConfigFile(cfgFile)
+		if err := v.ReadInConfig(); err != nil {
+			if errors.As(err, &viper.ConfigParseError{}) {
+				return nil, err
+			}
+			log.Println("No config file used")
+		} else {
+			log.Printf("Using config file: %s", v.ConfigFileUsed())
+		}
+	} else {
+		home, err := homedir.Dir()
+		if err != nil {
 			return nil, err
 		}
+		v.AddConfigPath(".")
+		v.AddConfigPath(home)
+		v.AddConfigPath("/etc/nyx/")
+		v.AddConfigPath("/etc/filebrowser/")
 
-		log.Println("No config file used")
-	} else {
-		log.Printf("Using config file: %s", v.ConfigFileUsed())
+		v.SetConfigName(".nyx")
+		if err := v.ReadInConfig(); err != nil {
+			if errors.As(err, &viper.ConfigParseError{}) {
+				return nil, err
+			}
+			var notFoundErr viper.ConfigFileNotFoundError
+			if errors.As(err, &notFoundErr) {
+				v.SetConfigName(".filebrowser")
+				if fallbackErr := v.ReadInConfig(); fallbackErr != nil {
+					if errors.As(fallbackErr, &viper.ConfigParseError{}) {
+						return nil, fallbackErr
+					}
+					log.Println("No config file used")
+				} else {
+					log.Printf("Using legacy config file: %s (consider renaming to .nyx.*)", v.ConfigFileUsed())
+				}
+			} else {
+				log.Println("No config file used")
+			}
+		} else {
+			log.Printf("Using config file: %s", v.ConfigFileUsed())
+		}
 	}
 
 	// Return Viper
 	return v, nil
+}
+
+// resolveDatabase determines the database path and whether it already exists.
+// If the target is nyx.db and does not exist, but legacy filebrowser.db exists in the
+// same directory, filebrowser.db is returned with an informative log message without
+// modifying, renaming, or deleting any existing database.
+func resolveDatabase(v *viper.Viper) (string, bool, error) {
+	path, err := filepath.Abs(v.GetString("database"))
+	if err != nil {
+		return "", false, err
+	}
+
+	exists, err := dbExists(path)
+	if err != nil {
+		return "", false, err
+	}
+
+	if !exists && filepath.Base(path) == "nyx.db" {
+		legacyPath := filepath.Join(filepath.Dir(path), "filebrowser.db")
+		legacyExists, legacyErr := dbExists(legacyPath)
+		if legacyErr == nil && legacyExists {
+			log.Printf("Using legacy database: %s. No data will be modified or renamed.", legacyPath)
+			return legacyPath, true, nil
+		}
+	}
+
+	return path, exists, nil
 }
 
 type store struct {
@@ -154,21 +218,18 @@ func withViperAndStore(fn func(cmd *cobra.Command, args []string, v *viper.Viper
 			return err
 		}
 
-		path, err := filepath.Abs(v.GetString("database"))
+		path, exists, err := resolveDatabase(v)
 		if err != nil {
 			return err
 		}
 
-		exists, err := dbExists(path)
 		switch {
-		case err != nil:
-			return err
 		case exists && options.expectsNoDatabase:
 			log.Fatal(path + " already exists")
 		case !exists && !options.expectsNoDatabase && !options.allowsNoDatabase:
-			log.Fatal(path + " does not exist. Please run 'filebrowser config init' first.")
+			log.Fatal(path + " does not exist. Please run 'nyx config init' first.")
 		case !exists && !options.expectsNoDatabase:
-			log.Println("WARNING: filebrowser.db can't be found. Initialing in " + strings.TrimSuffix(path, "filebrowser.db"))
+			log.Println("WARNING: nyx.db can't be found. Initialing in " + strings.TrimSuffix(path, "nyx.db"))
 		}
 
 		log.Println("Using database: " + path)

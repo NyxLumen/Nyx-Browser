@@ -8,8 +8,8 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/filebrowser/filebrowser/v2/settings"
-	"github.com/filebrowser/filebrowser/v2/users"
+	"github.com/nyxlumen/nyx-browser/v2/settings"
+	"github.com/nyxlumen/nyx-browser/v2/users"
 )
 
 // A TUS PATCH must not write more than the declared Upload-Length. A client that

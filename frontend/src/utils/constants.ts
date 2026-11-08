@@ -1,25 +1,27 @@
-const name: string = window.FileBrowser.Name || "File Browser";
-const disableExternal: boolean = window.FileBrowser.DisableExternal;
-const disableUsedPercentage: boolean = window.FileBrowser.DisableUsedPercentage;
-const baseURL: string = window.FileBrowser.BaseURL;
-const staticURL: string = window.FileBrowser.StaticURL;
-const recaptcha: string = window.FileBrowser.ReCaptcha;
-const recaptchaKey: string = window.FileBrowser.ReCaptchaKey;
-const signup: boolean = window.FileBrowser.Signup;
-const version: string = window.FileBrowser.Version;
+const appConfig = window.Nyx || window.FileBrowser || {};
+
+const name: string = appConfig.Name || "Nyx Browser";
+const disableExternal: boolean = appConfig.DisableExternal;
+const disableUsedPercentage: boolean = appConfig.DisableUsedPercentage;
+const baseURL: string = appConfig.BaseURL;
+const staticURL: string = appConfig.StaticURL;
+const recaptcha: string = appConfig.ReCaptcha;
+const recaptchaKey: string = appConfig.ReCaptchaKey;
+const signup: boolean = appConfig.Signup;
+const version: string = appConfig.Version;
 const logoURL = `${staticURL}/img/logo.svg`;
-const noAuth: boolean = window.FileBrowser.NoAuth;
-const authMethod = window.FileBrowser.AuthMethod;
-const logoutPage: string = window.FileBrowser.LogoutPage;
-const loginPage: boolean = window.FileBrowser.LoginPage;
-const theme: UserTheme = window.FileBrowser.Theme;
-const enableThumbs: boolean = window.FileBrowser.EnableThumbs;
-const resizePreview: boolean = window.FileBrowser.ResizePreview;
-const enableExec: boolean = window.FileBrowser.EnableExec;
-const tusSettings = window.FileBrowser.TusSettings;
+const noAuth: boolean = appConfig.NoAuth;
+const authMethod = appConfig.AuthMethod;
+const logoutPage: string = appConfig.LogoutPage;
+const loginPage: boolean = appConfig.LoginPage;
+const theme: UserTheme = appConfig.Theme;
+const enableThumbs: boolean = appConfig.EnableThumbs;
+const resizePreview: boolean = appConfig.ResizePreview;
+const enableExec: boolean = appConfig.EnableExec;
+const tusSettings = appConfig.TusSettings;
 const origin = window.location.origin;
 const tusEndpoint = `/api/tus`;
-const hideLoginButton = window.FileBrowser.HideLoginButton;
+const hideLoginButton = appConfig.HideLoginButton;
 
 export {
   name,

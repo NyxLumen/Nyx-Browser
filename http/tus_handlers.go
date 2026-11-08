@@ -11,7 +11,7 @@ import (
 	"strings"
 	"time"
 
-	"github.com/filebrowser/filebrowser/v2/files"
+	"github.com/nyxlumen/nyx-browser/v2/files"
 	"github.com/spf13/afero"
 )
 

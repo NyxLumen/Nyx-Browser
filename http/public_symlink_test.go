@@ -12,12 +12,12 @@ import (
 	"testing"
 
 	"github.com/asdine/storm/v3"
-	"github.com/filebrowser/filebrowser/v2/files"
-	"github.com/filebrowser/filebrowser/v2/settings"
-	"github.com/filebrowser/filebrowser/v2/share"
-	"github.com/filebrowser/filebrowser/v2/storage"
-	"github.com/filebrowser/filebrowser/v2/storage/bolt"
-	"github.com/filebrowser/filebrowser/v2/users"
+	"github.com/nyxlumen/nyx-browser/v2/files"
+	"github.com/nyxlumen/nyx-browser/v2/settings"
+	"github.com/nyxlumen/nyx-browser/v2/share"
+	"github.com/nyxlumen/nyx-browser/v2/storage"
+	"github.com/nyxlumen/nyx-browser/v2/storage/bolt"
+	"github.com/nyxlumen/nyx-browser/v2/users"
 	"github.com/spf13/afero"
 )
 

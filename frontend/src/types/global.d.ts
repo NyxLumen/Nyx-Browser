@@ -2,6 +2,7 @@ export {};
 
 declare global {
   interface Window {
+    Nyx: any;
     FileBrowser: any;
     grecaptcha: any;
   }

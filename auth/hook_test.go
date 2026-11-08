@@ -6,8 +6,8 @@ import (
 	"runtime"
 	"testing"
 
-	"github.com/filebrowser/filebrowser/v2/settings"
-	"github.com/filebrowser/filebrowser/v2/users"
+	"github.com/nyxlumen/nyx-browser/v2/settings"
+	"github.com/nyxlumen/nyx-browser/v2/users"
 )
 
 // writeHookScript writes a POSIX shell script to a temp file and returns its

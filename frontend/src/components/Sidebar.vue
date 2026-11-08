@@ -97,13 +97,13 @@
 
     <p class="credits">
       <span>
-        <span v-if="disableExternal">File Browser</span>
+        <span v-if="disableExternal">Nyx Browser</span>
         <a
           v-else
           rel="noopener noreferrer"
           target="_blank"
-          href="https://github.com/filebrowser/filebrowser"
-          >File Browser</a
+          href="https://github.com/nyxlumen/nyx-browser"
+          >Nyx Browser</a
         >
         <span> {{ " " }} {{ version }}</span>
       </span>

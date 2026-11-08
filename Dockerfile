@@ -18,7 +18,7 @@ RUN addgroup -g $GID user && \
     adduser -D -u $UID -G user user
 
 # Copy binary, scripts, and configurations into image with proper ownership
-COPY --chown=user:user filebrowser /bin/filebrowser
+COPY --chown=user:user nyx /bin/nyx
 COPY --chown=user:user docker/common/ /
 COPY --chown=user:user docker/alpine/ /
 COPY --chown=user:user --from=fetcher /sbin/tini-static /bin/tini
@@ -28,8 +28,9 @@ COPY --from=fetcher /etc/ca-certificates /etc/ca-certificates
 COPY --from=fetcher /etc/mime.types /etc/mime.types
 COPY --from=fetcher /etc/ssl /etc/ssl
 
-# Create data directories, set ownership, and ensure healthcheck script is executable
-RUN mkdir -p /config /database /srv && \
+# Create data directories, set ownership, create legacy symlink, and ensure healthcheck script is executable
+RUN ln -s /bin/nyx /bin/filebrowser && \
+    mkdir -p /config /database /srv && \
     chown -R user:user /config /database /srv \
     && chmod +x /healthcheck.sh
 

@@ -1,32 +1,34 @@
 services:
-  filebrowser:
-    container_name: filebrowser
-    image: filebrowser/filebrowser:latest
+  nyx:
+    container_name: nyx
+    image: nyxlumen/nyx-browser:latest
     networks:
-      - filebrowser
+      - nyx
     ports:
       - 8000:80
     volumes:
-      - filebrowser:/flux/vault
+      - nyx:/flux/vault
     environment:
-      - FB_REDIS_CACHE_URL=redis://default:filebrowser@redis:6379 # Use rediss:// for ssl
+      - NYX_REDIS_CACHE_URL=redis://default:nyx@redis:6379 # Use rediss:// for ssl
+      # Legacy fallback supported:
+      # - FB_REDIS_CACHE_URL=redis://default:nyx@redis:6379
 
   redis:
     container_name: redis
     image: redis:latest
     networks:
-      - filebrowser
+      - nyx
     command:
       - sh
       - -c
       - |
         cat > /tmp/users.acl <<EOF
-        user default on >filebrowser ~* +@all
+        user default on >nyx ~* +@all
         EOF
         redis-server --aclfile /tmp/users.acl
 
 networks:
-  filebrowser:
+  nyx:
 
 volumes:
-  filebrowser:
+  nyx:

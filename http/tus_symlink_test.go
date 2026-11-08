@@ -12,10 +12,10 @@ import (
 	"github.com/golang-jwt/jwt/v5"
 	"github.com/spf13/afero"
 
-	"github.com/filebrowser/filebrowser/v2/files"
-	"github.com/filebrowser/filebrowser/v2/settings"
-	"github.com/filebrowser/filebrowser/v2/storage/bolt"
-	"github.com/filebrowser/filebrowser/v2/users"
+	"github.com/nyxlumen/nyx-browser/v2/files"
+	"github.com/nyxlumen/nyx-browser/v2/settings"
+	"github.com/nyxlumen/nyx-browser/v2/storage/bolt"
+	"github.com/nyxlumen/nyx-browser/v2/users"
 )
 
 // Reproduces the TUS write vector of GHSA-v9g6-9pp4-3w22: a scoped user must

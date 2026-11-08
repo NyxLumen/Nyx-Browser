@@ -9,8 +9,8 @@ import (
 	"path/filepath"
 	"strings"
 
-	"github.com/filebrowser/filebrowser/v2/files"
-	"github.com/filebrowser/filebrowser/v2/share"
+	"github.com/nyxlumen/nyx-browser/v2/files"
+	"github.com/nyxlumen/nyx-browser/v2/share"
 	"golang.org/x/crypto/bcrypt"
 )
 

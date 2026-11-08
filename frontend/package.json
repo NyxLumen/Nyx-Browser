@@ -1,5 +1,6 @@
 {
-  "name": "filebrowser-frontend",
+  "name": "nyx-browser-frontend",
+  "description": "Nyx Browser frontend",
   "version": "3.0.0",
   "private": true,
   "type": "module",

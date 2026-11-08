@@ -1,12 +1,12 @@
 # CLAUDE.md
 
-Guidance for Claude when working in this repository (File Browser, `filebrowser/filebrowser`).
+Guidance for Claude when working in this repository (Nyx Browser, `nyxlumen/nyx-browser`).
 
 ## Repo orientation
 
-- Go backend (`github.com/filebrowser/filebrowser/v2`, ecosystem `go`) + Vue frontend under `frontend/`.
-- The project is in **maintenance-only mode** (see `SECURITY.md`). Prefer small, surgical, well-tested changes.
-- Version scheme: `v2.63.x`. Conventional-commit messages (`fix(scope): …`, `feat: …`, `chore: …`).
+- Go backend (`github.com/nyxlumen/nyx-browser/v2`, ecosystem `go`) + Vue frontend under `frontend/`.
+- Nyx Browser is an independent file management and media browsing platform. Prefer small, surgical, well-tested changes.
+- Version scheme: `v2.x.x`. Conventional-commit messages (`fix(scope): …`, `feat: …`, `chore: …`).
 - Verify with `go build ./...`, `go vet ./...`, `go test ./...`. Reuse existing test harnesses (e.g. `signToken`, `scopedUserStorage`, `handle`, `customFSUser`, `mockUserStore`).
 
 ---

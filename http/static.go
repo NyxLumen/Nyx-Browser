@@ -15,10 +15,10 @@ import (
 	"path/filepath"
 	"strings"
 
-	"github.com/filebrowser/filebrowser/v2/auth"
-	"github.com/filebrowser/filebrowser/v2/settings"
-	"github.com/filebrowser/filebrowser/v2/storage"
-	"github.com/filebrowser/filebrowser/v2/version"
+	"github.com/nyxlumen/nyx-browser/v2/auth"
+	"github.com/nyxlumen/nyx-browser/v2/settings"
+	"github.com/nyxlumen/nyx-browser/v2/storage"
+	"github.com/nyxlumen/nyx-browser/v2/version"
 )
 
 func handleWithStaticData(w http.ResponseWriter, _ *http.Request, d *data, fSys fs.FS, file, contentType string) (int, error) {
