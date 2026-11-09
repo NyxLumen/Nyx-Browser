@@ -444,3 +444,35 @@ func TestService_FormatFromExtension(t *testing.T) {
 		})
 	}
 }
+
+func TestService_SecurityAndLimits(t *testing.T) {
+	t.Run("context cancelled returns error immediately", func(t *testing.T) {
+		svc := New(1)
+		ctx, cancel := context.WithCancel(context.Background())
+		cancel()
+
+		var out bytes.Buffer
+		err := svc.Resize(ctx, bytes.NewReader([]byte("dummy")), 100, 100, &out)
+		require.ErrorIs(t, err, context.Canceled)
+	})
+
+	t.Run("corrupted image data returns unsupported format", func(t *testing.T) {
+		svc := New(1)
+		var out bytes.Buffer
+		err := svc.Resize(context.Background(), bytes.NewReader([]byte("not-a-valid-image")), 100, 100, &out)
+		require.ErrorIs(t, err, ErrUnsupportedFormat)
+	})
+
+	t.Run("valid image within limits resizes successfully", func(t *testing.T) {
+		svc := New(1)
+		img := image.NewRGBA(image.Rect(0, 0, 200, 100))
+		var inBuf bytes.Buffer
+		require.NoError(t, png.Encode(&inBuf, img))
+
+		var outBuf bytes.Buffer
+		err := svc.Resize(context.Background(), &inBuf, 50, 50, &outBuf)
+		require.NoError(t, err)
+		require.NotEmpty(t, outBuf.Bytes())
+	})
+}
+

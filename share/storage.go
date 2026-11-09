@@ -36,16 +36,18 @@ func (s *Storage) All() ([]*Link, error) {
 		return nil, err
 	}
 
-	for i, link := range links {
+	active := make([]*Link, 0, len(links))
+	for _, link := range links {
 		if link.Expire != 0 && link.Expire <= time.Now().Unix() {
 			if err := s.Delete(link.Hash); err != nil {
 				return nil, err
 			}
-			links = append(links[:i], links[i+1:]...)
+			continue
 		}
+		active = append(active, link)
 	}
 
-	return links, nil
+	return active, nil
 }
 
 // FindByUserID wraps a StorageBackend.FindByUserID.
@@ -56,16 +58,18 @@ func (s *Storage) FindByUserID(id uint) ([]*Link, error) {
 		return nil, err
 	}
 
-	for i, link := range links {
+	active := make([]*Link, 0, len(links))
+	for _, link := range links {
 		if link.Expire != 0 && link.Expire <= time.Now().Unix() {
 			if err := s.Delete(link.Hash); err != nil {
 				return nil, err
 			}
-			links = append(links[:i], links[i+1:]...)
+			continue
 		}
+		active = append(active, link)
 	}
 
-	return links, nil
+	return active, nil
 }
 
 // GetByHash wraps a StorageBackend.GetByHash.
@@ -98,16 +102,18 @@ func (s *Storage) Gets(path string, id uint) ([]*Link, error) {
 		return nil, err
 	}
 
-	for i, link := range links {
+	active := make([]*Link, 0, len(links))
+	for _, link := range links {
 		if link.Expire != 0 && link.Expire <= time.Now().Unix() {
 			if err := s.Delete(link.Hash); err != nil {
 				return nil, err
 			}
-			links = append(links[:i], links[i+1:]...)
+			continue
 		}
+		active = append(active, link)
 	}
 
-	return links, nil
+	return active, nil
 }
 
 // Save wraps a StorageBackend.Save

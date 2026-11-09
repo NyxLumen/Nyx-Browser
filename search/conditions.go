@@ -97,6 +97,6 @@ func parseSearch(value string) *searchOptions {
 		return opts
 	}
 
-	opts.Terms = strings.Split(value, " ")
+	opts.Terms = strings.Fields(value)
 	return opts
 }

@@ -1,7 +1,9 @@
 package auth
 
 import (
+	"errors"
 	"net/http"
+	"os"
 	"strings"
 	"testing"
 
@@ -138,5 +140,69 @@ func TestProxyAuthCreateUserDirIsolatesScope(t *testing.T) {
 	}
 	if alice.Scope != "/users/alice" {
 		t.Errorf("expected /users/alice, got %q", alice.Scope)
+	}
+}
+
+func TestProxyAuthRejectsMissingOrEmptyHeader(t *testing.T) {
+	t.Parallel()
+
+	srv := &settings.Server{Root: t.TempDir()}
+	s := &settings.Settings{
+		Key:        []byte("key"),
+		AuthMethod: MethodProxyAuth,
+	}
+
+	testCases := []struct {
+		name       string
+		headerName string
+		setHeader  bool
+		headerVal  string
+	}{
+		{
+			name:       "missing header entirely",
+			headerName: "X-Remote-User",
+			setHeader:  false,
+		},
+		{
+			name:       "empty header value",
+			headerName: "X-Remote-User",
+			setHeader:  true,
+			headerVal:  "",
+		},
+		{
+			name:       "whitespace only header value",
+			headerName: "X-Remote-User",
+			setHeader:  true,
+			headerVal:  "   \t  ",
+		},
+		{
+			name:       "unconfigured proxy auth header name",
+			headerName: "",
+			setHeader:  true,
+			headerVal:  "alice",
+		},
+	}
+
+	for _, tc := range testCases {
+		t.Run(tc.name, func(t *testing.T) {
+			store := &mockUserStore{users: make(map[string]*users.User)}
+			auth := ProxyAuth{Header: tc.headerName}
+
+			req, _ := http.NewRequest(http.MethodGet, "/", http.NoBody)
+			if tc.setHeader {
+				req.Header.Set(tc.headerName, tc.headerVal)
+			}
+
+			user, err := auth.Auth(req, store, s, srv)
+			if user != nil {
+				t.Fatalf("expected nil user, got %+v", user)
+			}
+			if !errors.Is(err, os.ErrPermission) {
+				t.Fatalf("expected os.ErrPermission, got %v", err)
+			}
+			if len(store.users) != 0 {
+				t.Fatalf("expected 0 users provisioned, got %d", len(store.users))
+			}
+		})
 	}
 }
