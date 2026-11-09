@@ -49,8 +49,8 @@ Nyx Browser is an independent, self-hosted file management and media browsing pl
 | M1 | Reconnaissance, Repository Audit & Reproducible Baseline | Verify Node 24 & pnpm 10 environment, frozen lockfile installation, Go build/test baseline, document 0 pre-existing Go test failures and clean baseline | Survey (Phase 0) | DONE (commit 5e9e39a7) |
 | M2 | Complete Nyx Identity Migration | Go module migration (`github.com/nyxlumen/nyx-browser/v2`), CLI binary `nyx`, `nyx.db` with legacy fallback, `.nyx.*` configs, `NYX_` > `FB_` env vars, frontend branding, upstream license `NOTICE` | M1 | DONE (commit d5bf51de) |
 | M3 | Regression Coverage, Security Hardening & Deployment Readiness | Test suite expansion (auth, permissions, CRUD, search, previews, config), path traversal hardening, security fixes, Docker/operational verification | M2 | DONE (commit 132b0030) |
-| M4 | Architecture Documentation, Future Roadmap Specs & Code Quality | Backend API mapping, Nyx Gallery reuse points, frontend redesign proposal, media pipeline specification (FFmpeg/FFprobe), technical debt backlog | M3 | DONE (commit fdcff1d7) |
-| M5 | Integration, Compatibility Testing, Adversarial Review & Final Verification | Full E2E integration test, legacy migration/compatibility verification, independent adversarial testing, forensic integrity audit, final deliverable synthesis | M4 | IN_PROGRESS |
+| M4 | Architecture Documentation, Future Roadmap Specs & Code Quality | Backend API mapping, Nyx Gallery reuse points, frontend redesign proposal, media pipeline specification (FFmpeg/FFprobe), technical debt backlog | M3 | DONE (commit 6696a642) |
+| M5 | Integration, Compatibility Testing, Adversarial Review & Final Verification | Full E2E integration test, legacy migration/compatibility verification, independent adversarial testing, forensic integrity audit, final deliverable synthesis | M4 | DONE |
 
 ---
 

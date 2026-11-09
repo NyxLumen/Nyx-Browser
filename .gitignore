@@ -5,6 +5,8 @@ rice-box.go
 .idea/
 /filebrowser
 /filebrowser.exe
+/nyx
+/nyx.exe
 /dist
 .venv
 
