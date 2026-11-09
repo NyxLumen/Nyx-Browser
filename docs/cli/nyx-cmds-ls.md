@@ -1,4 +1,4 @@
-# filebrowser cmds ls
+# nyx cmds ls
 
 List all commands for each event
 
@@ -7,7 +7,7 @@ List all commands for each event
 List all commands for each event.
 
 ```
-filebrowser cmds ls [flags]
+nyx cmds ls [flags]
 ```
 
 ## Options
@@ -21,10 +21,10 @@ filebrowser cmds ls [flags]
 
 ```
   -c, --config string     config file path
-  -d, --database string   database path (default "./filebrowser.db")
+  -d, --database string   database path (default "./nyx.db")
 ```
 
 ## See Also
 
-* [filebrowser cmds](filebrowser-cmds.md)	 - Command runner management utility
+* [nyx cmds](nyx-cmds.md)	 - Command runner management utility
 

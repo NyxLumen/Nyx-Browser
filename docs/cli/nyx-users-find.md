@@ -1,4 +1,4 @@
-# filebrowser users find
+# nyx users find
 
 Find a user by username or id
 
@@ -7,7 +7,7 @@ Find a user by username or id
 Find a user by username or id. If no flag is set, all users will be printed.
 
 ```
-filebrowser users find <id|username> [flags]
+nyx users find <id|username> [flags]
 ```
 
 ## Options
@@ -20,10 +20,10 @@ filebrowser users find <id|username> [flags]
 
 ```
   -c, --config string     config file path
-  -d, --database string   database path (default "./filebrowser.db")
+  -d, --database string   database path (default "./nyx.db")
 ```
 
 ## See Also
 
-* [filebrowser users](filebrowser-users.md)	 - Users management utility
+* [nyx users](nyx-users.md)	 - Users management utility
 

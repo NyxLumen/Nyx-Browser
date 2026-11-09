@@ -1,4 +1,4 @@
-# filebrowser users export
+# nyx users export
 
 Export all users to a file.
 
@@ -8,7 +8,7 @@ Export all users to a json or yaml file. Please indicate the
 path to the file where you want to write the users.
 
 ```
-filebrowser users export <path> [flags]
+nyx users export <path> [flags]
 ```
 
 ## Options
@@ -21,10 +21,10 @@ filebrowser users export <path> [flags]
 
 ```
   -c, --config string     config file path
-  -d, --database string   database path (default "./filebrowser.db")
+  -d, --database string   database path (default "./nyx.db")
 ```
 
 ## See Also
 
-* [filebrowser users](filebrowser-users.md)	 - Users management utility
+* [nyx users](nyx-users.md)	 - Users management utility
 

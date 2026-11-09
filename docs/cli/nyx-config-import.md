@@ -1,4 +1,4 @@
-# filebrowser config import
+# nyx config import
 
 Import a configuration file
 
@@ -14,7 +14,7 @@ database.
 The path must be for a json or yaml file.
 
 ```
-filebrowser config import <path> [flags]
+nyx config import <path> [flags]
 ```
 
 ## Options
@@ -27,10 +27,10 @@ filebrowser config import <path> [flags]
 
 ```
   -c, --config string     config file path
-  -d, --database string   database path (default "./filebrowser.db")
+  -d, --database string   database path (default "./nyx.db")
 ```
 
 ## See Also
 
-* [filebrowser config](filebrowser-config.md)	 - Configuration management utility
+* [nyx config](nyx-config.md)	 - Configuration management utility
 

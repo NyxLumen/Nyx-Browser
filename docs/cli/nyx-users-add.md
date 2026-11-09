@@ -1,4 +1,4 @@
-# filebrowser users add
+# nyx users add
 
 Create a new user
 
@@ -7,7 +7,7 @@ Create a new user
 Create a new user and add it to the database.
 
 ```
-filebrowser users add <username> <password> [flags]
+nyx users add <username> <password> [flags]
 ```
 
 ## Options
@@ -40,10 +40,10 @@ filebrowser users add <username> <password> [flags]
 
 ```
   -c, --config string     config file path
-  -d, --database string   database path (default "./filebrowser.db")
+  -d, --database string   database path (default "./nyx.db")
 ```
 
 ## See Also
 
-* [filebrowser users](filebrowser-users.md)	 - Users management utility
+* [nyx users](nyx-users.md)	 - Users management utility
 

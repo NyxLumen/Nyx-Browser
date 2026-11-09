@@ -1,4 +1,4 @@
-# filebrowser cmds add
+# nyx cmds add
 
 Add a command to run on a specific event
 
@@ -7,7 +7,7 @@ Add a command to run on a specific event
 Add a command to run on a specific event.
 
 ```
-filebrowser cmds add <event> <command> [flags]
+nyx cmds add <event> <command> [flags]
 ```
 
 ## Options
@@ -20,10 +20,10 @@ filebrowser cmds add <event> <command> [flags]
 
 ```
   -c, --config string     config file path
-  -d, --database string   database path (default "./filebrowser.db")
+  -d, --database string   database path (default "./nyx.db")
 ```
 
 ## See Also
 
-* [filebrowser cmds](filebrowser-cmds.md)	 - Command runner management utility
+* [nyx cmds](nyx-cmds.md)	 - Command runner management utility
 

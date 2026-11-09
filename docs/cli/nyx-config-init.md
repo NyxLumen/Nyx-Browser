@@ -1,14 +1,17 @@
-# filebrowser config set
+# nyx config init
 
-Updates the configuration
+Initialize a new database
 
 ## Synopsis
 
-Updates the configuration. Set the flags for the options
-you want to change. Other options will remain unchanged.
+Initialize a new database to use with Nyx Browser. All of
+this options can be changed in the future with the command
+'nyx config set'. The user related flags apply
+to the defaults when creating new users and you don't
+override the options.
 
 ```
-filebrowser config set [flags]
+nyx config init [flags]
 ```
 
 ## Options
@@ -25,7 +28,7 @@ filebrowser config set [flags]
       --branding.disableExternal         disable external links such as GitHub links
       --branding.disableUsedPercentage   disable used disk percentage graph
       --branding.files string            path to directory with images and custom styles
-      --branding.name string             replace 'File Browser' by this name
+      --branding.name string             replace 'Nyx Browser' by this name
       --branding.theme string            set the theme
   -t, --cert string                      tls certificate
       --commands strings                 a list of the commands a user can execute
@@ -39,7 +42,7 @@ filebrowser config set [flags]
       --disableTypeDetectionByHeader     disables type detection by reading file headers
       --fileMode string                  mode bits that new files are created with (default "0o640")
       --followExternalSymlinks           follow symlinks whose target is outside the user scope (unsafe)
-  -h, --help                             help for set
+  -h, --help                             help for init
       --hideDotfiles                     hide dotfiles in file listings
       --hideLoginButton                  hide login button from public pages
   -k, --key string                       tls key
@@ -78,10 +81,10 @@ filebrowser config set [flags]
 
 ```
   -c, --config string     config file path
-  -d, --database string   database path (default "./filebrowser.db")
+  -d, --database string   database path (default "./nyx.db")
 ```
 
 ## See Also
 
-* [filebrowser config](filebrowser-config.md)	 - Configuration management utility
+* [nyx config](nyx-config.md)	 - Configuration management utility
 

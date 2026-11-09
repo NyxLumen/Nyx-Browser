@@ -1,63 +1,50 @@
 # Installation
 
-File Browser is a single binary and can be used as standalone executable. However, it is also available as a [Docker](https://www.docker.com) image. The installation and first time setup is quite straightforward independently of which system you use.
+Nyx Browser is a single binary and can be used as a standalone executable. It is also available as a Docker container image. Installation and first-time setup are straightforward across platforms.
 
 ## Binary
 
-The quickest and easiest way to install File Browser is to use a package manager, or our download script, which automatically fetches the latest version of File Browser for your platform. Alternatively, you can manually download the binary from the [releases page](https://github.com/filebrowser/filebrowser/releases).
+You can download the compiled `nyx` binary from the [releases page](https://github.com/NyxLumen/Nyx-Browser/releases) or build from source.
 
-### Brew
+### Standalone Execution
 
-```sh
-brew tap filebrowser/tap
-brew install filebrowser
-filebrowser -r /path/to/your/files
-```
-
-### Unix
+Once downloaded or compiled, execute `nyx` directly:
 
 ```sh
-curl -fsSL https://raw.githubusercontent.com/filebrowser/get/master/get.sh | bash
-filebrowser -r /path/to/your/files
+# Run Nyx serving files from /path/to/your/files
+nyx -r /path/to/your/files
 ```
 
-### Windows
-
-```sh
-iwr -useb https://raw.githubusercontent.com/filebrowser/get/master/get.ps1 | iex
-filebrowser -r /path/to/your/files
-```
-
-File Browser is now up and running. Read the ["First Boot"](#first-boot) section for more information.
+Nyx Browser is now up and running. Read the ["First Boot"](#first-boot) section for more information.
 
 ## Docker
 
-File Browser is available as two different Docker images, which can be found on [Docker Hub](https://hub.docker.com/r/filebrowser/filebrowser): a [bare Alpine image](#bare-alpine-image) and an [S6 Overlay image](#s6-overlay-image).
+Nyx Browser is available as two container configurations: a [bare Alpine image](#bare-alpine-image) and an [S6 Overlay image](#s6-overlay-image).
 
 ### Bare Alpine Image
 
 ```sh
 docker run \
-    -v filebrowser_data:/srv \
-    -v filebrowser_database:/database \
-    -v filebrowser_config:/config \
+    -v nyx_data:/srv \
+    -v nyx_database:/database \
+    -v nyx_config:/config \
     -p 8080:80 \
-    filebrowser/filebrowser
+    nyxlumen/nyx-browser:latest
 ```
 
-Where `filebrowser_data`, `filebrowser_database` and `filebrowser_config` are Docker [volumes](https://docs.docker.com/engine/storage/volumes/), where the data, database and configuration will be stored, respectively. The default configuration and database will be automatically initialized.
+Where `nyx_data`, `nyx_database`, and `nyx_config` are Docker [volumes](https://docs.docker.com/engine/storage/volumes/) storing application data, database, and configuration respectively. The default configuration and database will be automatically initialized.
 
-The default user that runs File Browser inside the container has UID 1000 and GID 1000. If, for one reason or another, you want to run the Docker container with a different user, please consult Docker's [user documentation](https://docs.docker.com/engine/containers/run/#user).
+The default user running inside the container has UID 1000 and GID 1000. If you wish to run the container with a different user, consult Docker's [user documentation](https://docs.docker.com/engine/containers/run/#user).
 
 > [!NOTE]
 >
-> When using [bind mounts](https://docs.docker.com/engine/storage/bind-mounts/), that is, when you mount a path on the host in the container, you must manually ensure that they have the correct **permissions**. Docker does not do this automatically for you. The host directories must be readable and writable by the user running inside the container. You can use the [`chown`](https://linux.die.net/man/1/chown) command to change the owner of those paths.
+> When using [bind mounts](https://docs.docker.com/engine/storage/bind-mounts/) (mounting a host directory into the container), ensure that the host directories have appropriate **permissions**. The host directories must be readable and writable by the container user (UID/GID 1000). You can use [`chown`](https://linux.die.net/man/1/chown) to set ownership.
 
-File Browser is now up and running. Read the ["First Boot"](#first-boot) section for more information.
+Nyx Browser is now up and running. Read the ["First Boot"](#first-boot) section for more information.
 
 ### S6 Overlay Image
 
-The `s6` image is based on LinuxServer and leverages the [s6-overlay](https://github.com/just-containers/s6-overlay) system for a standard, highly customizable image. It should be used as follows:
+The `s6` image leverages the [s6-overlay](https://github.com/just-containers/s6-overlay) system for process supervision and customizable UID/GID mapping:
 
 ```shell
 docker run \
@@ -67,27 +54,26 @@ docker run \
     -e PUID=$(id -u) \
     -e PGID=$(id -g) \
     -p 8080:80 \
-    filebrowser/filebrowser:s6
+    nyxlumen/nyx-browser:s6
 ```
 
 Where:
-
-- `/path/to/srv` contains the files root directory for File Browser
+- `/path/to/srv` contains the files root directory for Nyx Browser
 - `/path/to/config` contains a `settings.json` file
-- `/path/to/database` contains a `filebrowser.db` file
+- `/path/to/database` contains a `nyx.db` file (with fallback to `filebrowser.db`)
 
-Both `settings.json` and `filebrowser.db` will automatically be initialized if they don't exist.
+Both `settings.json` and `nyx.db` will automatically be initialized if they do not exist.
 
-File Browser is now up and running. Read the ["First Boot"](#first-boot) section for more information.
+Nyx Browser is now up and running. Read the ["First Boot"](#first-boot) section for more information.
 
 ## First Boot
 
-Your instance is now up and running. File Browser will automatically bootstrap a database, in which the configuration and the users are stored. You can find the address in which your instance is running, as well as the randomly generated password for the user `admin`, in the console logs.
+On first boot, Nyx Browser automatically bootstraps a database (`./nyx.db` by default) containing configuration and user data. The address where your instance is running and the randomly generated password for the `admin` account will be displayed in the console logs.
 
 > [!WARNING]
 >
-> The automatically generated password for the user `admin` is only displayed once. If you fail to remember it, you will need to manually delete the database and start File Browser again.
+> The automatically generated password for `admin` is only displayed once in the logs on initial setup.
 
-Although this is the fastest way to bootstrap an instance, we recommend you to take a look at other possible options, by checking [`config init`](cli/filebrowser-config-init.md) and [`config set`](cli/filebrowser-config-set.md), to make the installation as safe and customized as it can be.
+To customize your installation and configure security settings, check [`config init`](cli/nyx-config-init.md) and [`config set`](cli/nyx-config-set.md).
 
-If your goal is to have a public-facing deployment, we recommend taking a look at the [deployment](deployment.md) page for more information on how you can secure your installation.
+For production deployment and network hardening, see the [deployment](deployment.md) guide.

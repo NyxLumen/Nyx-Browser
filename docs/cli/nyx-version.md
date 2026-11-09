@@ -1,9 +1,9 @@
-# filebrowser version
+# nyx version
 
 Print the version number
 
 ```
-filebrowser version [flags]
+nyx version [flags]
 ```
 
 ## Options
@@ -16,10 +16,10 @@ filebrowser version [flags]
 
 ```
   -c, --config string     config file path
-  -d, --database string   database path (default "./filebrowser.db")
+  -d, --database string   database path (default "./nyx.db")
 ```
 
 ## See Also
 
-* [filebrowser](filebrowser.md)	 - A stylish web-based file browser
+* [nyx](nyx.md)	 - A stylish web-based file and media browser
 

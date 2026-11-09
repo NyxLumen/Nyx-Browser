@@ -1,4 +1,4 @@
-# filebrowser hash
+# nyx hash
 
 Hashes a password
 
@@ -7,7 +7,7 @@ Hashes a password
 Hashes a password using bcrypt algorithm.
 
 ```
-filebrowser hash <password> [flags]
+nyx hash <password> [flags]
 ```
 
 ## Options
@@ -20,10 +20,10 @@ filebrowser hash <password> [flags]
 
 ```
   -c, --config string     config file path
-  -d, --database string   database path (default "./filebrowser.db")
+  -d, --database string   database path (default "./nyx.db")
 ```
 
 ## See Also
 
-* [filebrowser](filebrowser.md)	 - A stylish web-based file browser
+* [nyx](nyx.md)	 - A stylish web-based file and media browser
 

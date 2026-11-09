@@ -1,4 +1,4 @@
-# filebrowser users import
+# nyx users import
 
 Import users from a file
 
@@ -10,7 +10,7 @@ installation. For that, just don't place their ID on the files
 list or set it to 0.
 
 ```
-filebrowser users import <path> [flags]
+nyx users import <path> [flags]
 ```
 
 ## Options
@@ -25,10 +25,10 @@ filebrowser users import <path> [flags]
 
 ```
   -c, --config string     config file path
-  -d, --database string   database path (default "./filebrowser.db")
+  -d, --database string   database path (default "./nyx.db")
 ```
 
 ## See Also
 
-* [filebrowser users](filebrowser-users.md)	 - Users management utility
+* [nyx users](nyx-users.md)	 - Users management utility
 

@@ -1,29 +1,30 @@
-# filebrowser
+# nyx
 
-A stylish web-based file browser
+A stylish web-based file and media browser
 
 ## Synopsis
 
-File Browser CLI lets you create the database to use with File Browser,
+Nyx Browser CLI lets you create the database to use with Nyx Browser,
 manage your users and all the configurations without accessing the
 web interface.
 
-If you've never run File Browser, you'll need to have a database for
+If you've never run Nyx Browser, you'll need to have a database for
 it. Don't worry: you don't need to setup a separate database server.
 We're using Bolt DB which is a single file database and all managed
 by ourselves.
 
 For this command, all flags are available as environmental variables,
 except for "--config", which specifies the configuration file to use.
-The environment variables are prefixed by "FB_" followed by the flag name in
-UPPER_SNAKE_CASE. For example, the flag "--disablePreviewResize" is available
-as FB_DISABLE_PREVIEW_RESIZE.
+The environment variables are prefixed by "NYX_" (with fallback to legacy "FB_"
+and "FILEBROWSER_") followed by the flag name in UPPER_SNAKE_CASE. For example, the flag
+"--disablePreviewResize" is available as NYX_DISABLE_PREVIEW_RESIZE (or FB_DISABLE_PREVIEW_RESIZE / FILEBROWSER_DISABLE_PREVIEW_RESIZE).
 
-If "--config" is not specified, File Browser will look for a configuration
-file named .filebrowser.{json, toml, yaml, yml} in the following directories:
+If "--config" is not specified, Nyx Browser will look for a configuration
+file named .nyx.{json, toml, yaml, yml} (with fallback to .filebrowser.{...}) in the following directories:
 
 - ./
 - $HOME/
+- /etc/nyx/
 - /etc/filebrowser/
 
 **Note:** Only the options listed below can be set via the config file or
@@ -34,17 +35,19 @@ import" commands.
 The precedence of the configuration values are as follows:
 
 - Flags
-- Environment variables
-- Configuration file
+- NYX_ environment variables
+- FB_ environment variables
+- FILEBROWSER_ environment variables
+- Configuration file (.nyx.*, fallback .filebrowser.*)
 - Database values
 - Defaults
 
-Also, if the database path doesn't exist, File Browser will enter into
+Also, if the database path doesn't exist, Nyx Browser will enter into
 the quick setup mode and a new database will be bootstrapped and a new
 user created with the credentials from options "username" and "password".
 
 ```
-filebrowser [flags]
+nyx [flags]
 ```
 
 ## Options
@@ -55,14 +58,14 @@ filebrowser [flags]
       --cacheDir string                file cache directory (disabled if empty)
   -t, --cert string                    tls certificate
   -c, --config string                  config file path
-  -d, --database string                database path (default "./filebrowser.db")
+  -d, --database string                database path (default "./nyx.db")
       --disableExec                    disables Command Runner feature (default true)
       --disableImageResolutionCalc     disables image resolution calculation by reading image files
       --disablePreviewResize           disable resize of image previews
       --disableThumbnails              disable image thumbnails
       --disableTypeDetectionByHeader   disables type detection by reading file headers
       --followExternalSymlinks         follow symlinks whose target is outside the user scope (unsafe)
-  -h, --help                           help for filebrowser
+  -h, --help                           help for nyx
       --imageProcessors int            image processors count (default 4)
   -k, --key string                     tls key
   -l, --log string                     log output (default "stdout")
@@ -79,11 +82,11 @@ filebrowser [flags]
 
 ## See Also
 
-* [filebrowser cmds](filebrowser-cmds.md)	 - Command runner management utility
-* [filebrowser completion](filebrowser-completion.md)	 - Generate the autocompletion script for the specified shell
-* [filebrowser config](filebrowser-config.md)	 - Configuration management utility
-* [filebrowser hash](filebrowser-hash.md)	 - Hashes a password
-* [filebrowser rules](filebrowser-rules.md)	 - Rules management utility
-* [filebrowser users](filebrowser-users.md)	 - Users management utility
-* [filebrowser version](filebrowser-version.md)	 - Print the version number
+* [nyx cmds](nyx-cmds.md)	 - Command runner management utility
+* [nyx completion](nyx-completion.md)	 - Generate the autocompletion script for the specified shell
+* [nyx config](nyx-config.md)	 - Configuration management utility
+* [nyx hash](nyx-hash.md)	 - Hashes a password
+* [nyx rules](nyx-rules.md)	 - Rules management utility
+* [nyx users](nyx-users.md)	 - Users management utility
+* [nyx version](nyx-version.md)	 - Print the version number
 

@@ -1,4 +1,4 @@
-# filebrowser cmds rm
+# nyx cmds rm
 
 Removes a command from an event hooker
 
@@ -15,7 +15,7 @@ you can remove all commands from 'index' to 'index_end',
 including 'index_end'.
 
 ```
-filebrowser cmds rm <event> <index> [index_end] [flags]
+nyx cmds rm <event> <index> [index_end] [flags]
 ```
 
 ## Options
@@ -28,10 +28,10 @@ filebrowser cmds rm <event> <index> [index_end] [flags]
 
 ```
   -c, --config string     config file path
-  -d, --database string   database path (default "./filebrowser.db")
+  -d, --database string   database path (default "./nyx.db")
 ```
 
 ## See Also
 
-* [filebrowser cmds](filebrowser-cmds.md)	 - Command runner management utility
+* [nyx cmds](nyx-cmds.md)	 - Command runner management utility
 

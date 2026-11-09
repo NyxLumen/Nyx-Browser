@@ -1,36 +1,70 @@
-> [!WARNING]
-> 
-> **File Browser is archived on 2026-09-01**. The last planned release has already shipped. There will be no further releases, bug fixes, or security fixes.   
+# Nyx Browser
 
 <p align="center">
   <img src="./branding/banner.png" width="550"/>
 </p>
 
-File Browser provides a file managing interface within a specified directory and it can be used to upload, delete, preview and edit your files. It is a **create-your-own-cloud**-kind of software where you can just install it on your server, direct it to a path and access your files through a nice web interface.
+Nyx Browser is an independent, self-hosted file management and media browsing platform built from a hardened Go and Vue 3 foundation. Designed for local network environments and home servers, it pairs a full-featured, desktop-grade file manager with an upcoming dedicated visual media gallery for photos and videos, wrapped in a minimal dark aesthetic.
 
-**Background:** [Goodbye File Browser, for Real This Time](https://hacdias.com/2026/07/28/filebrowser/), July 2026.
+## Quickstart
+
+### Single Binary
+
+Download the compiled `nyx` binary for your platform or build from source, then start serving files:
+
+```bash
+# Run Nyx serving files from /path/to/files on port 8080 with default database ./nyx.db
+./nyx -r /path/to/files -p 8080 -d ./nyx.db
+```
+
+On first boot, Nyx automatically bootstraps `./nyx.db` and outputs an initial administrative login credential to the console.
+
+### Docker Container
+
+Run Nyx Browser using Docker:
+
+```bash
+docker run -d \
+  --name nyx \
+  -p 8080:80 \
+  -v /path/to/files:/srv \
+  -v /path/to/nyx.db:/nyx.db \
+  nyxlumen/nyx-browser:latest
+```
+
+### Configuration
+
+Nyx Browser supports flexible configuration via CLI flags, environment variables, config files, and the internal Bolt database. Configuration evaluation follows a strict precedence hierarchy:
+
+1. **CLI Flags** (e.g. `--port`, `--database`, `--root`)
+2. **`NYX_*` Environment Variables** (e.g. `NYX_PORT`, `NYX_DATABASE`, `NYX_ROOT`)
+3. **`FB_*` Legacy Environment Variables** (e.g. `FB_PORT`, `FB_DATABASE`)
+4. **`FILEBROWSER_*` Compatibility Environment Variables**
+5. **Configuration Files**: Discovered in `./`, `$HOME/`, `/etc/nyx/`, or `/etc/filebrowser/` as `.nyx.{yaml,yml,json,toml}` (with fallback to `.filebrowser.{...}`)
+6. **Database Values & Defaults**: Default database `./nyx.db` (with non-destructive fallback to `./filebrowser.db`)
 
 ## Security
 
-Published advisories are listed under [security advisories](https://github.com/filebrowser/filebrowser/security/advisories),
-and reporting instructions are in [SECURITY.md](SECURITY.md). Two known issue classes
-remain unaddressed and will not be fixed:
-
-- **Command execution, runner, and hooks.** This feature is plagued with vulnerabilities across many published advisories, and would need a full rewrite to be made safe. It is disabled by default; if you re-enable it with `--disable-exec=false`, treat the ability to run commands as equivalent to shell access on the host. Background: [#5199](https://github.com/filebrowser/filebrowser/issues/5199).
-- **Session and JWT handling.** Sessions are self-contained JWTs rather than server-side identifiers, so they cannot be revoked, which means that logout, password changes, and renewal leave previously issued tokens valid until they expire, and the same refresh token can be redeemed repeatedly. Assume a leaked token is valid until expiry. Background: [#5216](https://github.com/filebrowser/filebrowser/issues/5216).
-
-If you keep running File Browser, treat it as unmaintained software:
-
-- **Do not expose it directly to the internet.** Put it behind a reverse proxy that terminates TLS and performs its own authentication.
-- **Keep the command runner disabled.** It is off by default, so leave it off. See [#5199](https://github.com/filebrowser/filebrowser/issues/5199) and [`docs/command-execution.md`](docs/command-execution.md).
-- **Run it unprivileged, inside a container**, with only the directory you intend to serve mounted into it.
+Nyx Browser is actively maintained with ongoing security hardening:
+- **Proxy Authentication Hardening (`NYX-SEC-001`)**: Patched reverse proxy header validation to prevent unauthenticated bypass.
+- **Share Link Expiration (`NYX-SEC-002`)**: Patched expiration handling to eliminate race conditions during share query mutations.
+- **Filesystem Confinement**: Strict scoped filesystem guards enforcing path traversal boundaries and symlink confinement.
+- **Command Runner**: The command runner feature is disabled by default (`--disable-exec=true`).
+- **Vulnerability Reporting**: For security concerns, please consult [SECURITY.md](SECURITY.md) and report privately via GitHub Security Advisories at [https://github.com/nyxlumen/nyx-browser/security](https://github.com/nyxlumen/nyx-browser/security).
 
 ## Documentation
 
-Documentation on how to install, configure, and build this project lives in [`docs`](docs) in this repository.
+Full documentation lives in the [`docs`](docs) directory:
+- [Installation Guide](docs/installation.md)
+- [Customization](docs/customization.md)
+- [Deployment](docs/deployment.md)
+- [Troubleshooting](docs/troubleshooting.md)
+- [CLI Reference](docs/cli/nyx.md)
+- [Contributing & Build Guide](CONTRIBUTING.md)
 
-[CONTRIBUTING.md](CONTRIBUTING.md) documents how to build and develop the project, which remains useful to anyone forking it.
+## License & Attribution
 
-## License
+Nyx Browser is licensed under the [Apache License 2.0](LICENSE).  
+Copyright 2026 Nyx Lumen and contributors.
 
-[Apache License 2.0](LICENSE) © File Browser Contributors
+This product is derived from File Browser (https://github.com/filebrowser/filebrowser), licensed under the Apache License, Version 2.0. Copyright 2018 File Browser Contributors. See [NOTICE](NOTICE) for complete attribution and historical copyright details.

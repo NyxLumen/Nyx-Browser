@@ -1,4 +1,4 @@
-# filebrowser rules ls
+# nyx rules ls
 
 List global rules or user specific rules
 
@@ -7,7 +7,7 @@ List global rules or user specific rules
 List global rules or user specific rules.
 
 ```
-filebrowser rules ls [flags]
+nyx rules ls [flags]
 ```
 
 ## Options
@@ -20,12 +20,12 @@ filebrowser rules ls [flags]
 
 ```
   -c, --config string     config file path
-  -d, --database string   database path (default "./filebrowser.db")
+  -d, --database string   database path (default "./nyx.db")
   -i, --id uint           id of user to which the rules apply
   -u, --username string   username of user to which the rules apply
 ```
 
 ## See Also
 
-* [filebrowser rules](filebrowser-rules.md)	 - Rules management utility
+* [nyx rules](nyx-rules.md)	 - Rules management utility
 

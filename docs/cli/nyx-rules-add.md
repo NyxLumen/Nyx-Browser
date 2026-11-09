@@ -1,4 +1,4 @@
-# filebrowser rules add
+# nyx rules add
 
 Add a global rule or user rule
 
@@ -7,7 +7,7 @@ Add a global rule or user rule
 Add a global rule or user rule.
 
 ```
-filebrowser rules add <path|expression> [flags]
+nyx rules add <path|expression> [flags]
 ```
 
 ## Options
@@ -22,12 +22,12 @@ filebrowser rules add <path|expression> [flags]
 
 ```
   -c, --config string     config file path
-  -d, --database string   database path (default "./filebrowser.db")
+  -d, --database string   database path (default "./nyx.db")
   -i, --id uint           id of user to which the rules apply
   -u, --username string   username of user to which the rules apply
 ```
 
 ## See Also
 
-* [filebrowser rules](filebrowser-rules.md)	 - Rules management utility
+* [nyx rules](nyx-rules.md)	 - Rules management utility
 

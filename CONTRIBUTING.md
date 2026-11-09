@@ -1,101 +1,98 @@
-# Building File Browser
+# Contributing to Nyx Browser
 
-This project is archived on 2026-09-01. Pull requests are not accepted and no further changes are merged. This document is kept as build documentation for anyone wishing to build the project from source.
+Thank you for your interest in contributing to Nyx Browser! We welcome contributions, bug fixes, documentation improvements, and feature proposals.
 
 ## Project Structure
 
-The backend side of the application is written in [Go](https://golang.org/), while the frontend (located on a subdirectory of the same name) is written in [Vue.js](https://vuejs.org/). Due to the tight coupling required by some features, basic knowledge of both Go and Vue.js is recommended.
+Nyx Browser is organized into two primary components:
+- **Backend**: Written in [Go](https://go.dev/) (Go 1.27+), located in the root repository and subpackages under module path `github.com/nyxlumen/nyx-browser/v2`.
+- **Frontend**: Written in [Vue 3](https://vuejs.org/) and TypeScript with Vite and Pinia, located in the [`frontend`](frontend/) directory.
 
-* Learn Go: [https://github.com/golang/go/wiki/Learn](https://github.com/golang/go/wiki/Learn)
-* Learn Vue.js: [https://vuejs.org/guide/introduction.html](https://vuejs.org/guide/introduction.html)
-
-We encourage you to use git to manage your fork. To clone the main repository, just run:
+To clone the repository:
 
 ```bash
-git clone https://github.com/filebrowser/filebrowser
+git clone https://github.com/NyxLumen/Nyx-Browser.git
+cd Nyx-Browser
 ```
 
-We use [Taskfile](https://taskfile.dev/) to manage the different processes (building, releasing, etc) automatically.
+We use [Taskfile](https://taskfile.dev/) to automate development tasks, builds, and releases.
 
-## Build
+## Building from Source
 
-You can fully build the project in order to produce a binary by running:
+You can build the full project (frontend assets + Go binary) using Taskfile:
 
 ```bash
 task build
 ```
 
-## Development
+Or step-by-step:
 
-For development, there are a few things to have in mind.
+### 1. Frontend
 
-### Frontend
-
-We use [Node.js](https://nodejs.org/en/) on the frontend to manage the build process. Prepare the frontend environment:
+We use Node.js (v22/v24) and [pnpm](https://pnpm.io/) to manage the frontend build process:
 
 ```bash
-# From the root of the repo, go to frontend/
 cd frontend
 
-# Install the dependencies
+# Install dependencies
 pnpm install
-```
 
-If you just want to develop the backend, you can create a static build of the frontend:
-
-```bash
+# Build static assets (compiles to frontend/dist)
 pnpm run build
-```
 
-If you want to develop the frontend, start a development server which watches for changes:
-
-```bash
+# Start development server with hot module reloading
 pnpm run dev
+
+# Run frontend test suite
+pnpm test
 ```
 
-Please note that you need to access File Browser's interface through the development server of the frontend.
+### 2. Backend
 
-### Backend
-
-First prepare the backend environment by downloading all required dependencies:
+Ensure Go dependencies are downloaded:
 
 ```bash
 go mod download
 ```
 
-You can now build or run File Browser as any other Go project:
+Build or run Nyx Browser:
 
 ```bash
-# Build
-go build
+# Compile binary
+go build -o nyx .
 
-# Run
-go run .
+# Run directly
+go run . -r /path/to/files -p 8080 -d ./nyx.db
+
+# Run backend tests
+go test -v ./...
 ```
 
-## Documentation
+## Documentation & CLI Reference
 
-Documentation lives in [`docs`](docs) as plain Markdown and is no longer built into a site. The command line reference in [`docs/cli`](docs/cli) is generated from the commands themselves:
+Documentation is maintained in the [`docs`](docs/) directory as Markdown.
+
+The command-line interface reference under [`docs/cli`](docs/cli/) is automatically generated from Cobra commands:
+
+```bash
+go run . docs --out docs/cli
+```
+
+Alternatively, you can run:
 
 ```bash
 task docs:cli:generate
 ```
 
-## Release
-
-To make a release, just run:
-
-```bash
-task release
-```
+Always ensure the CLI documentation is regenerated if you introduce or alter CLI flags, commands, or defaults.
 
 ## Translations
 
-The Transifex integration stopped on 2026-09-01 and translations submitted there no longer reach this repository. Locale files live in [`frontend/src/i18n`](frontend/src/i18n) and can be edited directly.
+Locale files live in [`frontend/src/i18n`](frontend/src/i18n) and can be edited directly. Pull requests adding or improving translations are welcomed.
 
-## Authentication Provider
+## Authentication Providers
 
-To build a new authentication provider, you need to implement the [Auther interface](https://github.com/filebrowser/filebrowser/blob/master/auth/auth.go), whose method will be called on the login page after the user has submitted their login data.
+To build a new authentication provider, implement the `Auther` interface in [`auth/auth.go`](auth/auth.go):
 
 ```go
 // Auther is the authentication interface.
@@ -105,11 +102,14 @@ type Auther interface {
 }
 ```
 
-After implementing the interface you should:
+After implementing the interface:
+1. Add the implementation under the [`auth/`](auth/) directory.
+2. Register configuration flags in [`cmd/config.go`](cmd/config.go).
+3. Connect the backend retrieval in [`storage/bolt/auth.go`](storage/bolt/auth.go).
 
-1. Add it to [`auth` directory](https://github.com/filebrowser/filebrowser/blob/master/auth).
-2. Add it to the [configuration parser](https://github.com/filebrowser/filebrowser/blob/master/cmd/config.go) for the CLI.
-3. Add it to the [`authBackend.Get`](https://github.com/filebrowser/filebrowser/blob/master/storage/bolt/auth.go).
+## Pull Request Guidelines
 
-If you need to add more flags, please update the function `addConfigFlags`.
-
+1. Ensure all Go unit and integration tests pass: `go test -count=1 ./...`
+2. Ensure Go code is formatted and passes vet checks: `go vet ./...`
+3. Ensure frontend tests and typechecks pass: `pnpm --dir frontend test` and `pnpm --dir frontend build`
+4. If modifying CLI flags or commands, run `go run . docs --out docs/cli` to keep documentation in sync.

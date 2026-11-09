@@ -1,33 +1,33 @@
 # Customization
 
-You can customize the styles, branding and icons of your File Browser instance in order to give it a personal touch.
+You can customize the styles, branding, and icons of your Nyx Browser instance to give it a personalized appearance.
 
 ## Custom Branding
 
-You can customize File Browser to use your own branding. This includes the following:
+You can configure Nyx Browser to use your own branding. This includes the following:
 
-- **Name**: the name of the instance that shows up on the tab title, login pages, and some other places.
-- **Disable External Links**: disables all external links, except to the documentation.
-- **Disable Used Percentage**: disables the disk usage information on the sidebar.
-- **Branding Folder**: directory which can contain two items:
-  - `custom.css`, containing a global stylesheet to apply to all users.
-  - `img`, a directory which can replace all the [default logotypes](https://github.com/filebrowser/filebrowser/tree/master/frontend/public/img) from the application.
+- **Name**: The name of the instance that shows up in the tab title, login pages, and UI header.
+- **Disable External Links**: Disables external links in the interface.
+- **Disable Used Percentage**: Disables the disk usage percentage indicator on the sidebar.
+- **Branding Folder**: Directory which can contain two items:
+  - `custom.css`, containing a global stylesheet applied to all users.
+  - `img`, a directory containing replacements for default logotypes and icons.
 
-This can be configured by the administrator user, under **Settings → Global Settings**. You can also update the configuration directly using the [CLI](cli/filebrowser-config-set.md):
+This can be configured by an administrator under **Settings → Global Settings**, or directly using the [CLI](cli/nyx-config-set.md):
 
 ```sh
-filebrowser config set --branding.name "My Name" \
+nyx config set --branding.name "My Brand" \
   --branding.files "/abs/path/to/my/dir" \
   --branding.disableExternal
 ```
 
 > [!NOTE] 
 >
-> If you are using Docker, you need to mount a volume with the `branding` directory in order for it to be accessible from within the container.
+> When using Docker, ensure that you mount a volume with the `branding` directory into the container.
 
 ### Custom Icons
 
-To replace the default logotype and favicons, you need to create an `img` directory under the branding directory. The structure of this directory must mimic the one from the [default logotypes](https://github.com/filebrowser/filebrowser/tree/master/frontend/public/img):
+To replace the default logotypes and favicons, create an `img` directory under the branding directory:
 
 ```
 img/
@@ -38,8 +38,8 @@ img/
     (...)
 ```
 
-Note that there are different versions of the same favicon in multiple sizes. To replace all of them, you need to add versions for all of them. You can use the [Real Favicon Generator](https://realfavicongenerator.net/) to generate these for you from your base image. 
+Different versions of favicons exist in multiple sizes. You can use the [Real Favicon Generator](https://realfavicongenerator.net/) to generate these assets from your source image.
 
 > [!NOTE]
 >
-> The icons are cached by the browser, so you may not see your changes immediately. You can address this by clearing your browser's cache.
+> Icons are cached aggressively by the browser; clear your browser cache if changes do not appear immediately.

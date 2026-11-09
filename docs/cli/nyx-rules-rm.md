@@ -1,4 +1,4 @@
-# filebrowser rules rm
+# nyx rules rm
 
 Remove a global rule or user rule
 
@@ -15,7 +15,7 @@ you can remove all commands from 'index' to 'index_end',
 including 'index_end'.
 
 ```
-filebrowser rules rm <index> [index_end] [flags]
+nyx rules rm <index> [index_end] [flags]
 ```
 
 ## Options
@@ -29,12 +29,12 @@ filebrowser rules rm <index> [index_end] [flags]
 
 ```
   -c, --config string     config file path
-  -d, --database string   database path (default "./filebrowser.db")
+  -d, --database string   database path (default "./nyx.db")
   -i, --id uint           id of user to which the rules apply
   -u, --username string   username of user to which the rules apply
 ```
 
 ## See Also
 
-* [filebrowser rules](filebrowser-rules.md)	 - Rules management utility
+* [nyx rules](nyx-rules.md)	 - Rules management utility
 

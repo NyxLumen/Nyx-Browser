@@ -1,4 +1,4 @@
-# filebrowser completion zsh
+# nyx completion zsh
 
 Generate the autocompletion script for zsh
 
@@ -13,23 +13,23 @@ to enable it.  You can execute the following once:
 
 To load completions in your current shell session:
 
-	source <(filebrowser completion zsh)
+	source <(nyx completion zsh)
 
 To load completions for every new session, execute once:
 
 ### Linux:
 
-	filebrowser completion zsh > "${fpath[1]}/_filebrowser"
+	nyx completion zsh > "${fpath[1]}/_nyx"
 
 ### macOS:
 
-	filebrowser completion zsh > $(brew --prefix)/share/zsh/site-functions/_filebrowser
+	nyx completion zsh > $(brew --prefix)/share/zsh/site-functions/_nyx
 
 You will need to start a new shell for this setup to take effect.
 
 
 ```
-filebrowser completion zsh [flags]
+nyx completion zsh [flags]
 ```
 
 ## Options
@@ -43,10 +43,10 @@ filebrowser completion zsh [flags]
 
 ```
   -c, --config string     config file path
-  -d, --database string   database path (default "./filebrowser.db")
+  -d, --database string   database path (default "./nyx.db")
 ```
 
 ## See Also
 
-* [filebrowser completion](filebrowser-completion.md)	 - Generate the autocompletion script for the specified shell
+* [nyx completion](nyx-completion.md)	 - Generate the autocompletion script for the specified shell
 

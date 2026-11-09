@@ -1,4 +1,4 @@
-# filebrowser completion fish
+# nyx completion fish
 
 Generate the autocompletion script for fish
 
@@ -8,17 +8,17 @@ Generate the autocompletion script for the fish shell.
 
 To load completions in your current shell session:
 
-	filebrowser completion fish | source
+	nyx completion fish | source
 
 To load completions for every new session, execute once:
 
-	filebrowser completion fish > ~/.config/fish/completions/filebrowser.fish
+	nyx completion fish > ~/.config/fish/completions/nyx.fish
 
 You will need to start a new shell for this setup to take effect.
 
 
 ```
-filebrowser completion fish [flags]
+nyx completion fish [flags]
 ```
 
 ## Options
@@ -32,10 +32,10 @@ filebrowser completion fish [flags]
 
 ```
   -c, --config string     config file path
-  -d, --database string   database path (default "./filebrowser.db")
+  -d, --database string   database path (default "./nyx.db")
 ```
 
 ## See Also
 
-* [filebrowser completion](filebrowser-completion.md)	 - Generate the autocompletion script for the specified shell
+* [nyx completion](nyx-completion.md)	 - Generate the autocompletion script for the specified shell
 

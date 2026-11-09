@@ -1,4 +1,4 @@
-# filebrowser config cat
+# nyx config cat
 
 Prints the configuration
 
@@ -7,7 +7,7 @@ Prints the configuration
 Prints the configuration.
 
 ```
-filebrowser config cat [flags]
+nyx config cat [flags]
 ```
 
 ## Options
@@ -20,10 +20,10 @@ filebrowser config cat [flags]
 
 ```
   -c, --config string     config file path
-  -d, --database string   database path (default "./filebrowser.db")
+  -d, --database string   database path (default "./nyx.db")
 ```
 
 ## See Also
 
-* [filebrowser config](filebrowser-config.md)	 - Configuration management utility
+* [nyx config](nyx-config.md)	 - Configuration management utility
 

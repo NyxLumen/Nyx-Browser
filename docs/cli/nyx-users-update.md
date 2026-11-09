@@ -1,4 +1,4 @@
-# filebrowser users update
+# nyx users update
 
 Updates an existing user
 
@@ -8,7 +8,7 @@ Updates an existing user. Set the flags for the
 options you want to change.
 
 ```
-filebrowser users update <id|username> [flags]
+nyx users update <id|username> [flags]
 ```
 
 ## Options
@@ -43,10 +43,10 @@ filebrowser users update <id|username> [flags]
 
 ```
   -c, --config string     config file path
-  -d, --database string   database path (default "./filebrowser.db")
+  -d, --database string   database path (default "./nyx.db")
 ```
 
 ## See Also
 
-* [filebrowser users](filebrowser-users.md)	 - Users management utility
+* [nyx users](nyx-users.md)	 - Users management utility
 

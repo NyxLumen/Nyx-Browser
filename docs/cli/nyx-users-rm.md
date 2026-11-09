@@ -1,4 +1,4 @@
-# filebrowser users rm
+# nyx users rm
 
 Delete a user by username or id
 
@@ -7,7 +7,7 @@ Delete a user by username or id
 Delete a user by username or id
 
 ```
-filebrowser users rm <id|username> [flags]
+nyx users rm <id|username> [flags]
 ```
 
 ## Options
@@ -20,10 +20,10 @@ filebrowser users rm <id|username> [flags]
 
 ```
   -c, --config string     config file path
-  -d, --database string   database path (default "./filebrowser.db")
+  -d, --database string   database path (default "./nyx.db")
 ```
 
 ## See Also
 
-* [filebrowser users](filebrowser-users.md)	 - Users management utility
+* [nyx users](nyx-users.md)	 - Users management utility
 

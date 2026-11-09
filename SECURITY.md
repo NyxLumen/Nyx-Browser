@@ -2,29 +2,33 @@
 
 ## Supported Versions
 
-No version receives security fixes. The last planned release has already shipped and no further changes will be merged.
+Nyx Browser is actively maintained. Security patches and hardening improvements are applied to the active release stream.
 
 | Version | Supported |
 | ------- | --------- |
-| 2.x     | ❌        |
-| < 2.0   | ❌        |
+| Phase 01 / v2.x | :white_check_mark: |
+| Legacy File Browser (< 2.0) | :x: |
 
-## Before Reporting
+## Security Hardening History
 
-This project is being wound down. To avoid duplicates, first check the [existing advisories](https://github.com/filebrowser/filebrowser/security/advisories) and open issues, and confirm:
+Recent security hardening and vulnerability remediations in Nyx Browser include:
 
-- **It concerns this project, not a fork.** Reports about code, features, or endpoints that don't exist here belong to the relevant fork.
-- **It isn't an already-known class** that remains unaddressed. Those are listed under [Security](README.md#security) in the README; reports covering them are likely to be closed as duplicates.
+- **NYX-SEC-001**: Reverse proxy authentication bypass remediation in `auth/proxy.go`, properly validating trusted header sources and preventing unauthenticated spoofing.
+- **NYX-SEC-002**: Share link expiration slice mutation remediation in `share/storage.go`, eliminating race conditions and unintended persistence of expired public shares.
+- **Filesystem Sandboxing**: Strict scoped filesystem path traversal guards and symlink confinement in `files/scoped.go`.
 
 ## Reporting a Vulnerability
 
-Until 2026-09-01, report privately via the [Security](https://github.com/filebrowser/filebrowser/security) page. After that date this repository is read-only and reports can no longer be submitted.
+If you discover a security vulnerability in Nyx Browser, please report it responsibly:
 
-Please include, where possible:
+- Submit a private vulnerability report via [GitHub Security Advisories](https://github.com/nyxlumen/nyx-browser/security/advisories) or repository issue intake at [https://github.com/nyxlumen/nyx-browser/security](https://github.com/nyxlumen/nyx-browser/security).
+- Please do not disclose vulnerabilities publicly until a patch has been coordinated and released.
 
-- The commit the issue was found at
+Please include in your report:
+
+- The commit SHA or release version where the vulnerability was observed
 - A plaintext proof of concept (no binaries)
-- Steps to reproduce
-- Recommended remediation, if any
+- Clear, step-by-step instructions to reproduce
+- Impact assessment and suggested remediation, if available
 
-No fix will ship for any report: the last planned release has already shipped and no further changes will be merged. Reports may still be published as advisories so that people running File Browser can assess their exposure.
+Security reports are reviewed promptly, and verified vulnerabilities will receive a security advisory and coordinated release.

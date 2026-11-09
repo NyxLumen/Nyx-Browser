@@ -1,4 +1,4 @@
-# filebrowser rules
+# nyx rules
 
 Rules management utility
 
@@ -22,13 +22,13 @@ rules.
 
 ```
   -c, --config string     config file path
-  -d, --database string   database path (default "./filebrowser.db")
+  -d, --database string   database path (default "./nyx.db")
 ```
 
 ## See Also
 
-* [filebrowser](filebrowser.md)	 - A stylish web-based file browser
-* [filebrowser rules add](filebrowser-rules-add.md)	 - Add a global rule or user rule
-* [filebrowser rules ls](filebrowser-rules-ls.md)	 - List global rules or user specific rules
-* [filebrowser rules rm](filebrowser-rules-rm.md)	 - Remove a global rule or user rule
+* [nyx](nyx.md)	 - A stylish web-based file and media browser
+* [nyx rules add](nyx-rules-add.md)	 - Add a global rule or user rule
+* [nyx rules ls](nyx-rules-ls.md)	 - List global rules or user specific rules
+* [nyx rules rm](nyx-rules-rm.md)	 - Remove a global rule or user rule
 

@@ -1,4 +1,4 @@
-# filebrowser completion powershell
+# nyx completion powershell
 
 Generate the autocompletion script for powershell
 
@@ -8,14 +8,14 @@ Generate the autocompletion script for powershell.
 
 To load completions in your current shell session:
 
-	filebrowser completion powershell | Out-String | Invoke-Expression
+	nyx completion powershell | Out-String | Invoke-Expression
 
 To load completions for every new session, add the output of the above command
 to your powershell profile.
 
 
 ```
-filebrowser completion powershell [flags]
+nyx completion powershell [flags]
 ```
 
 ## Options
@@ -29,10 +29,10 @@ filebrowser completion powershell [flags]
 
 ```
   -c, --config string     config file path
-  -d, --database string   database path (default "./filebrowser.db")
+  -d, --database string   database path (default "./nyx.db")
 ```
 
 ## See Also
 
-* [filebrowser completion](filebrowser-completion.md)	 - Generate the autocompletion script for the specified shell
+* [nyx completion](nyx-completion.md)	 - Generate the autocompletion script for the specified shell
 
