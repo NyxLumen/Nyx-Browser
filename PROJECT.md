@@ -1,16 +1,18 @@
-# Project: Nyx Browser (NYX FOUNDATION: Phase 01)
+# Project: Nyx Browser (NYX FOUNDATION: Phase 01 & Phase 01.1)
 
 ## Architecture
 Nyx Browser is an independent, self-hosted file management and media browsing platform built from a fork of File Browser.
-- **Backend Architecture**: Go 1.27 (`go1.27.3-X:nodwarf5`), migrating module path to `github.com/nyxlumen/nyx-browser/v2`.
+- **Backend Architecture**: Go 1.27 (`go1.27.3-X:nodwarf5`), module path `github.com/nyxlumen/nyx-browser/v2`.
   - Entry point: `main.go` -> `cmd/root.go`
-  - CLI & Config: Cobra CLI (`nyx`), Viper configuration loader with strict precedence: CLI Flags > `NYX_` env vars > `FB_` env vars > `.nyx.*` configs > `.filebrowser.*` configs > Database stored settings > Built-in defaults.
+  - CLI & Config: Cobra CLI (`nyx`), Viper configuration loader with strict 6-tier precedence:
+    $$\mathbf{Flags} \;\;>\;\; \mathbf{NYX\_*} \;\;>\;\; \mathbf{FB\_*} \;\;>\;\; \mathbf{FILEBROWSER\_*} \;\;>\;\; \mathbf{Config\;Files} \;\;>\;\; \mathbf{Defaults}$$
   - Storage Layer: BoltDB (`go.etcd.io/bbolt`) with Storm ORM (`github.com/asdine/storm/v3`). Buckets: `User`, `Link`, and `config` (`settings`, `server`, `auther`, `version`). Default DB path: `./nyx.db`, with non-destructive fallback to `./filebrowser.db`.
   - Scoped Filesystem: `files.ScopedFs` wrapping `afero.BasePathFs`, enforcing path traversal boundaries and symlink confinement.
   - Authentication: JWT HMAC tokens with pluggable backends (`JSONAuth`, `ProxyAuth`, `NoAuth`, `HookAuth`).
   - HTTP Routing: Gorilla Mux router with embedded frontend assets (`frontend.Assets()`).
+  - Upload Cache: Ephemeral chunk metadata cache with memory backend and multi-replica Redis backend (`nyx:upload:` namespace with non-destructive fallback to `filebrowser:upload:`).
   - Image/Media Preview: Semaphore-bounded downscaling pool (`img/service.go`) with disk caching (`diskcache/`).
-- **Frontend Architecture**: Vue 3, TypeScript, Pinia, Vue Router, Dayjs, Vite 8, pnpm 10.33.4, Node 24.
+- **Frontend Architecture**: Vue 3, TypeScript, Pinia, Vue Router, Dayjs, Vite 8, pnpm 10.33.4, Node 22/24.
   - Assets compiled into `frontend/dist/` and embedded into Go binary via `assets.go`.
   - Runtime configuration injected via Go HTML template into `window.Nyx` (with `window.FileBrowser` fallback).
   - Responsive dark-first desktop-grade interface.
@@ -18,81 +20,115 @@ Nyx Browser is an independent, self-hosted file management and media browsing pl
 ---
 
 ## Feature Inventory
+
+### Phase 01 Foundation Features (Completed)
+| # | Feature | Description | Milestone | Status |
+|---|---------|-------------|-----------|--------|
+| 1 | Baseline Go Build & Test Verification | Compile 19 packages, run 59 unit tests | Phase 01 M1 | DONE (`5e9e39a7`) |
+| 2 | Baseline Frontend Verification | Node 24/pnpm 10, typecheck, vitest, build | Phase 01 M1 | DONE (`5e9e39a7`) |
+| 3 | Baseline Documentation & Defect Catalog | Baseline toolchain status and matrices | Phase 01 M1 | DONE (`5e9e39a7`) |
+| 4 | Go Module Path Migration | `github.com/nyxlumen/nyx-browser/v2` migration | Phase 01 M2 | DONE (`d5bf51de`) |
+| 5 | CLI & Binary Identity Migration | Rename to `nyx`, update build outputs | Phase 01 M2 | DONE (`d5bf51de`) |
+| 6 | Database Name & Non-Destructive Fallback | Default `./nyx.db` with `./filebrowser.db` fallback | Phase 01 M2 | DONE (`d5bf51de`) |
+| 7 | Config File Precedence & Dual-Env Support | `.nyx.*` > `.filebrowser.*`; `NYX_` > `FB_` | Phase 01 M2 | DONE (`d5bf51de`) |
+| 8 | Frontend Identity & Metadata Update | Update manifest, title, sidebar, remove sunset card | Phase 01 M2 | DONE (`d5bf51de`) |
+| 9 | Upstream License, Copyright & Attribution | Apache 2.0 `LICENSE`, preserve copyright, add `NOTICE` | Phase 01 M2 | DONE (`d5bf51de`) |
+| 10 | Regression Test Coverage Expansion | Auth, permissions, CRUD, previews, config | Phase 01 M3 | DONE (`132b0030`) |
+| 11 | Filesystem Boundary Hardening | Symlink traversal and scoped filesystem guards | Phase 01 M3 | DONE (`132b0030`) |
+| 12 | Security Vulnerability Fixes | Fix NYX-SEC-001 (proxy auth) and NYX-SEC-002 (share) | Phase 01 M3 | DONE (`132b0030`) |
+| 13 | Operational Deployment Audit | Dockerfile, compose, storage permissions, DEPLOYMENT.md | Phase 01 M3 | DONE (`132b0030`) |
+| 14 | Backend Architecture & API Mapping | REST API map, ZDD BoltDB overlay blueprints | Phase 01 M4 | DONE (`6696a642`) |
+| 15 | Frontend Redesign Proposal | 55 component inventory, OLED dark mode design tokens | Phase 01 M4 | DONE (`6696a642`) |
+| 16 | Gallery Media Specification | Preview pipeline, downscaling, caching, FFmpeg | Phase 01 M4 | DONE (`6696a642`) |
+| 17 | Code Quality Audit & Tech Debt | Dead code, dependencies, debt catalog | Phase 01 M4 | DONE (`6696a642`) |
+| 18 | E2E Integration & Upgrade Compatibility | Clean install, upgrade, dual-env integration tests | Phase 01 M5 | DONE (`ee15cae8`) |
+| 19 | Adversarial Security Verification | Stress-test traversal, collisions, database integrity | Phase 01 M5 | DONE (`ee15cae8`) |
+| 20 | Milestone Integrity & Audit Review | 5 linear commits verified, POST_CAMPAIGN_REVIEW.md | Phase 01 M5 | DONE (`ee15cae8`) |
+
+### Phase 01.1 Remediation Features
 | # | Feature | Description | Milestone | Source |
 |---|---------|-------------|-----------|--------|
-| 1 | Baseline Go Build & Test Verification | Verify Go 1.27 toolchain, compile all 19 packages, run 59 existing unit tests, catalog 0 pre-existing baseline failures | M1 | R1 |
-| 2 | Baseline Frontend Verification | Verify Node 24 (`fnm use 24`) & pnpm 10 (`10.33.4`), install 514 packages from frozen lockfile, verify lint, typecheck, vitest (29 tests), and production build | M1 | R1 |
-| 3 | Baseline Documentation & Defect Catalog | Document baseline toolchain status, pre-existing warnings (Browserslist, unbundled recaptcha, large chunks), and baseline test matrices | M1 | R1 |
-| 4 | Go Module Path Migration | Migrate `github.com/filebrowser/filebrowser/v2` to `github.com/nyxlumen/nyx-browser/v2` across `go.mod` and all 94 internal Go import files | M2 | R2 |
-| 5 | CLI & Binary Identity Migration | Rename CLI command to `nyx`, update version template, build outputs, and Taskfile/Goreleaser | M2 | R2 |
-| 6 | Database Name & Non-Destructive Fallback | Change default DB to `./nyx.db`. If `./nyx.db` is missing but legacy `./filebrowser.db` exists, open legacy DB without deletion or silent mutation | M2 | R2 |
-| 7 | Config File Precedence & Dual-Env Support | Support `.nyx.{json,yaml,yml,toml}` with fallback to `.filebrowser.*`. Support `NYX_` env vars with fallback to `FB_` (`NYX_` takes precedence) | M2 | R2 |
-| 8 | Frontend Identity & Metadata Update | Update `package.json`, `index.html`, `manifest.json`, `window.Nyx` namespace (with legacy `window.FileBrowser` proxy), sidebar branding, and translation strings. Remove sunset archival warning card | M2 | R2 |
-| 9 | Upstream License, Copyright & Attribution | Retain Apache 2.0 `LICENSE`, preserve all copyright headers, add `NOTICE` acknowledging upstream File Browser derivation | M2 | R2 |
-| 10 | Regression Test Coverage Expansion | Add automated regression tests for authentication, permissions, file CRUD operations, uploads, downloads, search, previews, config precedence, and DB compatibility | M3 | R3 |
-| 11 | Filesystem Boundary & Path Traversal Hardening | Audit and add regression tests for arbitrary directory escapes, symlink traversal, case sensitivity bypasses, and scoped filesystem guards | M3 | R3 |
-| 12 | Security Audit & Low-Risk Vulnerability Fixes | Fix demonstrable low-risk vulnerabilities with automated tests; document higher-risk findings with reproduction steps and remediation advice | M3 | R3 |
-| 13 | Operational & Deployment Readiness Audit | Audit Dockerfile, Docker Compose, container startup/shutdown, persistent storage permissions, and improve deployment documentation | M3 | R3 |
-| 14 | Backend Architecture & API Mapping | Document comprehensive backend architecture, REST API map, auth, storage, and identify reuse points for future Nyx Gallery without duplicate media DB | M4 | R4 |
-| 15 | Frontend Redesign Architecture Proposal | Deliver practical frontend redesign and restructuring proposal aligned with minimal dark theme, PWA-first, and media gallery direction | M4 | R4 |
-| 16 | Nyx Gallery & Media Processing Specification | Deliver specification for image/video preview handling, caching, metadata extraction, poster generation, and FFmpeg/FFprobe integration | M4 | R4 |
-| 17 | Code Quality Audit & Tech Debt Backlog | Audit unused dependencies, dead code, duplicated utilities, TypeScript `any` boundaries, and produce prioritized technical debt backlog | M4 | R4 |
-| 18 | End-to-End Integration & Upgrade Compatibility | Verify clean installation, upgrade from File Browser database/config, and dual `NYX_`/`FB_` configuration interoperability | M5 | R5 |
-| 19 | Independent Adversarial Verification | Stress-test path traversal, configuration collisions, session handling, and legacy database integrity under adversarial conditions | M5 | R5 |
-| 20 | Milestone Integrity & Final Deliverables | Validate 5 milestone Git commits on `nyx_foundation_phase_one` worktree branch and deliver final campaign report to Sentinel | M5 | R5 |
+| 21 | CLI Version Flag Compatibility | Assign `rootCmd.Version = version.Version` in `cmd/root.go`, enabling `nyx --version` and `nyx -v` while preserving `nyx version` | P1.1-M1 | R2 |
+| 22 | Environment Variable Precedence & `FILEBROWSER_` Support | Implement deterministic 6-tier binding in `cmd/utils.go` (`Flags > NYX_* > FB_* > FILEBROWSER_* > Config > Defaults`), deprecation check in `cmd/root.go`, container healthchecks | P1.1-M1 | R3 |
+| 23 | CLI & Config Automated Regression Suite | Unit tests (`cmd/version_test.go`) and integration tests (`cmd/integration_test.go`) for `--version`, `version`, `FILEBROWSER_` fallback, and precedence | P1.1-M1 | R2, R3 |
+| 24 | Redis Upload Cache Namespace Migration | Replace `"filebrowser:upload:"` with canonical `"nyx:upload:"` in `http/upload_cache_redis.go` | P1.1-M2 | R4 |
+| 25 | Active Upload Session Safe Read-Fallback | Implement non-destructive read-fallback on `GetLength` and `Touch`, dual `Del` on `Complete` to preserve active legacy upload sessions | P1.1-M2 | R4 |
+| 26 | Redis Upload Cache Unit & Regression Suite | Hermetic unit tests (`http/upload_cache_redis_test.go`) validating legacy-key retrieval, new-key creation, TTL refresh, dual deletion | P1.1-M2 | R4 |
+| 27 | Root & Docs README Modernization | Remove obsolete File Browser sunset notices, introduce accurate Nyx overview, modern quickstart, Docker run, preserve attribution and Apache 2.0 license | P1.1-M3 | R1 |
+| 28 | CLI Documentation Modernization | Rename all 30 `docs/cli/filebrowser-*.md` files to `docs/cli/nyx-*.md`, update headings (`# nyx ...`), command examples, `./nyx.db`, and env vars | P1.1-M3 | R1 |
+| 29 | Documentation Cross-Link Integrity | Update caller links (`docs/installation.md`, `customization.md`, `troubleshooting.md`, `docs/README.md`), verify `nyx docs` generation | P1.1-M3 | R1 |
+| 30 | Docker Reproducibility Investigation Report | Document investigation of `JSON.sh`, offline build analysis, licensing, and rationale for simplest maintainable solution | P1.1-M3 | R5 |
+| 31 | Full Campaign Integration & Baseline Verification | Execute `go test ./...` with race detector, frontend typecheck/lint/test/build, and Docker container verification | P1.1-M4 | R6 |
+| 32 | Linear Remediation Git Commits & Final Deliverables | Verify diffs, create meaningful remediation commits on `nyx_foundation_phase_one`, compile deliverables, merge readiness assessment | P1.1-M4 | R6, R7 |
 
 ---
 
 ## Milestones
+
 | # | Name | Scope | Dependencies | Status |
 |---|------|-------|-------------|--------|
-| M1 | Reconnaissance, Repository Audit & Reproducible Baseline | Verify Node 24 & pnpm 10 environment, frozen lockfile installation, Go build/test baseline, document 0 pre-existing Go test failures and clean baseline | Survey (Phase 0) | DONE (commit 5e9e39a7) |
-| M2 | Complete Nyx Identity Migration | Go module migration (`github.com/nyxlumen/nyx-browser/v2`), CLI binary `nyx`, `nyx.db` with legacy fallback, `.nyx.*` configs, `NYX_` > `FB_` env vars, frontend branding, upstream license `NOTICE` | M1 | DONE (commit d5bf51de) |
-| M3 | Regression Coverage, Security Hardening & Deployment Readiness | Test suite expansion (auth, permissions, CRUD, search, previews, config), path traversal hardening, security fixes, Docker/operational verification | M2 | DONE (commit 132b0030) |
-| M4 | Architecture Documentation, Future Roadmap Specs & Code Quality | Backend API mapping, Nyx Gallery reuse points, frontend redesign proposal, media pipeline specification (FFmpeg/FFprobe), technical debt backlog | M3 | DONE (commit 6696a642) |
-| M5 | Integration, Compatibility Testing, Adversarial Review & Final Verification | Full E2E integration test, legacy migration/compatibility verification, independent adversarial testing, forensic integrity audit, final deliverable synthesis | M4 | DONE |
+| **P1.1-M1** | CLI Version & Environment Variable Compatibility | `cmd/root.go`, `cmd/utils.go`, `docker/*/healthcheck.sh`, `cmd/version_test.go`, `cmd/integration_test.go` | Phase 01 HEAD (`ee15cae8`) | DONE |
+| **P1.1-M2** | Redis Upload Cache Namespace & In-Flight Session Compatibility | `http/upload_cache_redis.go`, `http/upload_cache_redis_test.go` | Phase 01 HEAD (`ee15cae8`) | DONE |
+| **P1.1-M3** | Complete Nyx Branding, CLI Docs Suite & Docker Investigation | `README.md`, `docs/README.md`, `SECURITY.md`, `CONTRIBUTING.md`, `docs/cli/*.md`, caller docs, Docker investigation doc | Phase 01 HEAD (`ee15cae8`) | DONE |
+| **P1.1-M4** | Integration Verification, Remediation Commits & Final Deliverables | Full test suites, clean Git diff inspection, remediation commits on `nyx_foundation_phase_one`, final campaign deliverables | P1.1-M1, P1.1-M2, P1.1-M3 | DONE |
 
 ---
 
 ## Interface Contracts
 
-### 1. CLI & Viper Configuration ↔ Environment & Files
-- Prefix: `v.SetEnvPrefix("NYX")` with automatic binding of flags to uppercase snake case keys (`NYX_<FLAG>`).
-- Fallback: Explicit secondary bindings for legacy `FB_<FLAG>` environment variables. When both `NYX_<FLAG>` and `FB_<FLAG>` are set, `NYX_` overrides.
-- Config File Lookup: Search order `./.nyx.{json,yaml,yml,toml}`, `$HOME/.nyx.*`, `/etc/nyx/.nyx.*`. If none found, fallback search `./.filebrowser.*`, `$HOME/.filebrowser.*`, `/etc/filebrowser/.filebrowser.*` with informative log.
-- Database Path: Default is `./nyx.db`. If `./nyx.db` does not exist and `./filebrowser.db` exists in target directory, open `./filebrowser.db` without renaming or mutating.
+### 1. CLI & Viper Configuration ↔ Environment & Flags
+- Primary Prefix: `v.SetEnvPrefix("NYX")` with automatic binding of flags via `AutomaticEnv()`.
+- Legacy Fallback Bindings: In `cmd/utils.go`:
+  ```go
+  _ = v.BindEnv(f.Name, fbSnake, filebrowserSnake)
+  ```
+- Deterministic 6-Tier Precedence Order:
+  $$\mathbf{Flags} \;\;>\;\; \mathbf{NYX\_*} \;\;>\;\; \mathbf{FB\_*} \;\;>\;\; \mathbf{FILEBROWSER\_*} \;\;>\;\; \mathbf{Config\;Files} \;\;>\;\; \mathbf{Defaults}$$
+- Root Version Registration: In `cmd/root.go`:
+  ```go
+  rootCmd.Version = version.Version
+  rootCmd.SetVersionTemplate("Nyx Browser version {{printf \"%s\" .Version}}\n")
+  ```
+  Both `nyx --version` / `nyx -v` (via Cobra flag) and `nyx version` (via Cobra command) report the authentic project version.
 
-### 2. Backend ↔ Frontend Asset Contract
-- Asset Embedding: `frontend/dist/` embedded into Go binary via `frontend.Assets() fs.FS`.
-- Runtime Context: Backend serves `index.html` template injecting JSON payload.
-  - Primary global variable: `window.Nyx = [{[ .Json ]}]`
-  - Backward compatibility shim: `window.FileBrowser = window.Nyx`
-  - Frontend TypeScript constants read `window.Nyx.Name || window.FileBrowser?.Name || "Nyx Browser"`.
+### 2. Redis Upload Cache Namespace & Compatibility
+- Canonical Namespace: `"nyx:upload:" + filePath`
+- Legacy Namespace: `"filebrowser:upload:" + filePath`
+- Operations:
+  - `Register(filePath, fileSize, cb)`: Sets `nyx:upload:<path>` with `uploadCacheTTL` (3 min).
+  - `GetLength(filePath)`: Queries `nyx:upload:<path>`. If `redis.Nil`, falls back to query `filebrowser:upload:<path>`. Refreshes TTL on active key.
+  - `Touch(filePath)`: Refreshes TTL on `nyx:upload:<path>`. If key does not exist, refreshes `filebrowser:upload:<path>`.
+  - `Complete(filePath)`: Deletes both `nyx:upload:<path>` and `filebrowser:upload:<path>` atomically.
 
-### 3. Backend Storage ↔ Database
-- ORM: Storm ORM buckets (`User`, `Link`) and Key-Value bucket (`config`).
-- Struct reflection names are preserved.
-- Package module path changes (`github.com/nyxlumen/nyx-browser/v2`) do NOT affect serialized BoltDB bucket names or data formats.
+### 3. Documentation & Asset Identity Contract
+- Documentation paths: `docs/cli/nyx-*.md` and `docs/cli/nyx.md`.
+- References in documentation cite command `nyx`, database `./nyx.db`, config `.nyx.yaml`, and environment `NYX_`.
+- All historical File Browser archival sunset notices removed from `README.md`, `docs/README.md`, `SECURITY.md`, and `CONTRIBUTING.md`.
+- Apache 2.0 `LICENSE` and `NOTICE` file attribution preserved verbatim.
 
 ---
 
-## Code Layout
-- Backend Source:
-  - `main.go` — CLI invocation
-  - `cmd/` — Cobra CLI commands and Viper configuration loader
-  - `http/` — HTTP routers, middleware, API handlers
-  - `storage/` & `storage/bolt/` — Storage interfaces and BoltDB / Storm implementation
-  - `files/` & `fileutils/` — Scoped filesystem abstraction, traversal protection, file utilities
-  - `auth/` — Authentication providers (JSON, Proxy, Hook, NoAuth)
-  - `img/` & `diskcache/` — Image preview generation, caching, downscaling
-  - `settings/`, `users/`, `share/`, `runner/`, `rules/`, `search/`, `errors/`, `version/`
-- Frontend Source:
-  - `frontend/src/` — Vue 3 components, views, router, pinia stores, utils, i18n
-  - `frontend/public/` — HTML template, manifest, icons, static assets
-  - `frontend/package.json`, `frontend/pnpm-lock.yaml`, `frontend/vite.config.ts`, `frontend/tsconfig*.json`
-- Deployment & CI:
-  - `Dockerfile`, `Dockerfile.s6`, `compose.yaml`
-  - `docker/`, `.github/workflows/`, `Taskfile.yml`, `.goreleaser.yml`
-- Documentation & Specifications:
-  - `docs/` — Public user and operational documentation
-  - Root architectural deliverables: Backend API docs, Frontend redesign proposal, Media pipeline specification, Technical debt backlog.
+## Code Layout & Milestone Ownership
+
+- **Milestone P1.1-M1 File Ownership**:
+  - `cmd/root.go`
+  - `cmd/utils.go`
+  - `cmd/version_test.go` (new)
+  - `cmd/integration_test.go`
+  - `docker/alpine/healthcheck.sh`
+  - `docker/common/healthcheck.sh`
+- **Milestone P1.1-M2 File Ownership**:
+  - `http/upload_cache_redis.go`
+  - `http/upload_cache_redis_test.go` (new)
+- **Milestone P1.1-M3 File Ownership**:
+  - `README.md`
+  - `docs/README.md`
+  - `SECURITY.md`
+  - `CONTRIBUTING.md`
+  - `docs/cli/*.md` (all 30 renamed files)
+  - `docs/installation.md`
+  - `docs/customization.md`
+  - `docs/troubleshooting.md`
+  - `DOCKER_INVESTIGATION.md` (or equivalent deliverable documentation)
+- **Milestone P1.1-M4 File Ownership**:
+  - Verification reports, `POST_CAMPAIGN_REVIEW.md` updates, final remediation summary, and git commits.
