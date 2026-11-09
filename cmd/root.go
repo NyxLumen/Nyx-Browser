@@ -31,6 +31,7 @@ import (
 	"github.com/nyxlumen/nyx-browser/v2/settings"
 	"github.com/nyxlumen/nyx-browser/v2/storage"
 	"github.com/nyxlumen/nyx-browser/v2/users"
+	"github.com/nyxlumen/nyx-browser/v2/version"
 )
 
 var (
@@ -76,6 +77,7 @@ func init() {
 
 	cobra.MousetrapHelpText = ""
 
+	rootCmd.Version = version.Version
 	rootCmd.SetVersionTemplate("Nyx Browser version {{printf \"%s\" .Version}}\n")
 
 	// Flags available across the whole program
@@ -129,9 +131,9 @@ by ourselves.
 
 For this command, all flags are available as environmental variables,
 except for "--config", which specifies the configuration file to use.
-The environment variables are prefixed by "NYX_" (with fallback to legacy "FB_")
-followed by the flag name in UPPER_SNAKE_CASE. For example, the flag
-"--disablePreviewResize" is available as NYX_DISABLE_PREVIEW_RESIZE (or FB_DISABLE_PREVIEW_RESIZE).
+The environment variables are prefixed by "NYX_" (with fallback to legacy "FB_"
+and "FILEBROWSER_") followed by the flag name in UPPER_SNAKE_CASE. For example, the flag
+"--disablePreviewResize" is available as NYX_DISABLE_PREVIEW_RESIZE (or FB_DISABLE_PREVIEW_RESIZE / FILEBROWSER_DISABLE_PREVIEW_RESIZE).
 
 If "--config" is not specified, Nyx Browser will look for a configuration
 file named .nyx.{json, toml, yaml, yml} (with fallback to .filebrowser.{...}) in the following directories:
@@ -151,6 +153,7 @@ The precedence of the configuration values are as follows:
 - Flags
 - NYX_ environment variables
 - FB_ environment variables
+- FILEBROWSER_ environment variables
 - Configuration file (.nyx.*, fallback .filebrowser.*)
 - Database values
 - Defaults
@@ -158,9 +161,9 @@ The precedence of the configuration values are as follows:
 Also, if the database path doesn't exist, Nyx Browser will enter into
 the quick setup mode and a new database will be bootstrapped and a new
 user created with the credentials from options "username" and "password".`,
-	RunE: withViperAndStore(func(_ *cobra.Command, _ []string, v *viper.Viper, st *store) error {
+	RunE: withViperAndStore(func(cmd *cobra.Command, _ []string, v *viper.Viper, st *store) error {
 		if !st.databaseExisted {
-			err := quickSetup(v, st.Storage)
+			err := quickSetup(v, st.Storage, cmd)
 			if err != nil {
 				return err
 			}
@@ -188,7 +191,7 @@ user created with the credentials from options "username" and "password".`,
 			return fmt.Errorf("failed to initialize upload cache: %w", err)
 		}
 
-		server, err := getServerSettings(v, st.Storage)
+		server, err := getServerSettings(v, st.Storage, cmd)
 		if err != nil {
 			return err
 		}
@@ -283,7 +286,79 @@ user created with the credentials from options "username" and "password".`,
 	}, storeOptions{allowsNoDatabase: true}),
 }
 
-func getServerSettings(v *viper.Viper, st *storage.Storage) (*settings.Server, error) {
+// resolveBaseURL deterministically resolves the server base URL following the strict precedence:
+// 1. CLI flag (--baseURL / -b / --baseurl)
+// 2. NYX_BASE_URL (standard UPPER_SNAKE_CASE)
+// 3. NYX_BASEURL (deprecated flat uppercase with notice)
+// 4. FB_BASE_URL (legacy snake_case)
+// 5. FB_BASEURL (legacy flat uppercase with notice)
+// 6. FILEBROWSER_BASE_URL (legacy tertiary snake_case)
+// 7. FILEBROWSER_BASEURL (legacy tertiary flat uppercase with notice)
+// 8. Configuration file (.nyx.*, fallback .filebrowser.*)
+func resolveBaseURL(v *viper.Viper, cmd ...*cobra.Command) (string, bool) {
+	var c *cobra.Command
+	if len(cmd) > 0 && cmd[0] != nil {
+		c = cmd[0]
+	}
+
+	// 1. CLI flag strictly overrides all environment variables and config
+	if c != nil && c.Flags() != nil {
+		if c.Flags().Changed("baseURL") {
+			val, err := c.Flags().GetString("baseURL")
+			if err == nil {
+				return val, true
+			}
+			if v != nil {
+				return v.GetString("baseURL"), true
+			}
+		}
+		if c.Flags().Lookup("baseurl") != nil && c.Flags().Changed("baseurl") {
+			val, err := c.Flags().GetString("baseurl")
+			if err == nil {
+				return val, true
+			}
+			if v != nil {
+				return v.GetString("baseURL"), true
+			}
+		}
+	}
+
+	// 2. Tier 2: NYX_ environment variables
+	if val := os.Getenv("NYX_BASE_URL"); val != "" {
+		return val, true
+	}
+	if val := os.Getenv("NYX_BASEURL"); val != "" {
+		log.Println("DEPRECATION NOTICE: Environment variable NYX_BASEURL has been deprecated, use NYX_BASE_URL instead")
+		return val, true
+	}
+
+	// 3. Tier 3: FB_ environment variables
+	if val := os.Getenv("FB_BASE_URL"); val != "" {
+		return val, true
+	}
+	if val := os.Getenv("FB_BASEURL"); val != "" {
+		log.Println("DEPRECATION NOTICE: Environment variable FB_BASEURL has been deprecated, use FB_BASE_URL instead")
+		return val, true
+	}
+
+	// 4. Tier 4: FILEBROWSER_ environment variables
+	if val := os.Getenv("FILEBROWSER_BASE_URL"); val != "" {
+		return val, true
+	}
+	if val := os.Getenv("FILEBROWSER_BASEURL"); val != "" {
+		log.Println("DEPRECATION NOTICE: Environment variable FILEBROWSER_BASEURL has been deprecated, use NYX_BASE_URL instead")
+		return val, true
+	}
+
+	// 5. Tier 5: Configuration file (.nyx.*, fallback .filebrowser.*)
+	if v != nil && (v.InConfig("baseURL") || v.InConfig("baseurl")) {
+		return v.GetString("baseURL"), true
+	}
+
+	return "", false
+}
+
+func getServerSettings(v *viper.Viper, st *storage.Storage, cmd ...*cobra.Command) (*settings.Server, error) {
 	server, err := st.Settings.GetServer()
 	if err != nil {
 		return nil, err
@@ -325,15 +400,9 @@ func getServerSettings(v *viper.Viper, st *storage.Storage) (*settings.Server, e
 		isSocketSet = true
 	}
 
-	if v.IsSet("baseURL") {
-		server.BaseURL = v.GetString("baseURL")
-		// TODO(remove): remove after July 2026.
-	} else if v := os.Getenv("NYX_BASEURL"); v != "" {
-		log.Println("DEPRECATION NOTICE: Environment variable NYX_BASEURL has been deprecated, use NYX_BASE_URL instead")
-		server.BaseURL = v
-	} else if v := os.Getenv("FB_BASEURL"); v != "" {
-		log.Println("DEPRECATION NOTICE: Environment variable FB_BASEURL has been deprecated, use FB_BASE_URL instead")
-		server.BaseURL = v
+	if val, ok := resolveBaseURL(v, cmd...); ok {
+		server.BaseURL = val
+		v.Set("baseURL", val)
 	}
 
 	if v.IsSet("tokenExpirationTime") {
@@ -420,7 +489,7 @@ func setupLog(logMethod string) {
 	}
 }
 
-func quickSetup(v *viper.Viper, s *storage.Storage) error {
+func quickSetup(v *viper.Viper, s *storage.Storage, cmd ...*cobra.Command) error {
 	log.Println("Performing quick setup")
 
 	set := &settings.Settings{
@@ -475,8 +544,13 @@ func quickSetup(v *viper.Viper, s *storage.Storage) error {
 		return err
 	}
 
+	baseURL, ok := resolveBaseURL(v, cmd...)
+	if ok {
+		v.Set("baseURL", baseURL)
+	}
+
 	ser := &settings.Server{
-		BaseURL:                v.GetString("baseURL"),
+		BaseURL:                baseURL,
 		Port:                   v.GetString("port"),
 		Log:                    v.GetString("log"),
 		TLSKey:                 v.GetString("key"),

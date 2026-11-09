@@ -30,6 +30,7 @@ import (
 	fbhttp "github.com/nyxlumen/nyx-browser/v2/http"
 	"github.com/nyxlumen/nyx-browser/v2/img"
 	"github.com/nyxlumen/nyx-browser/v2/settings"
+	"github.com/nyxlumen/nyx-browser/v2/storage"
 	"github.com/nyxlumen/nyx-browser/v2/storage/bolt"
 	"github.com/nyxlumen/nyx-browser/v2/users"
 )
@@ -197,6 +198,7 @@ func newIsolatedTestCommand() *cobra.Command {
 	flags.String("redisCacheUrl", "", "redis cache URL")
 	flags.Int("imageProcessors", 4, "image processors count")
 	addServerFlags(flags)
+	cmd.SetGlobalNormalizationFunc(migrateFlagNames)
 
 	return cmd
 }
@@ -660,32 +662,108 @@ func TestIntegration_DualEnvAndFlagPrecedence(t *testing.T) {
 		assert.Equal(t, "3h", v.GetString("tokenExpirationTime"), "FB_TOKEN_EXPIRATION_TIME must serve as fallback")
 	})
 
-	t.Run("CLIFlags_StrictlyOverride_Both_NYX_and_FB", func(t *testing.T) {
-		t.Setenv("NYX_PORT", "9300")
-		t.Setenv("FB_PORT", "8300")
-		t.Setenv("NYX_ADDRESS", "192.168.1.99")
-		t.Setenv("FB_ADDRESS", "10.99.99.99")
+	t.Run("FILEBROWSER_ActsAsTertiaryFallback_WhenNYXAndFBUnset", func(t *testing.T) {
+		_ = os.Unsetenv("NYX_PORT")
+		_ = os.Unsetenv("NYX_ADDRESS")
+		_ = os.Unsetenv("NYX_DISABLE_PREVIEW_RESIZE")
+		_ = os.Unsetenv("NYX_TOKEN_EXPIRATION_TIME")
+		_ = os.Unsetenv("FB_PORT")
+		_ = os.Unsetenv("FB_ADDRESS")
+		_ = os.Unsetenv("FB_DISABLE_PREVIEW_RESIZE")
+		_ = os.Unsetenv("FB_TOKEN_EXPIRATION_TIME")
+
+		t.Setenv("FILEBROWSER_PORT", "7200")
+		t.Setenv("FILEBROWSER_ADDRESS", "10.30.40.50")
+		t.Setenv("FILEBROWSER_DISABLE_PREVIEW_RESIZE", "true")
+		t.Setenv("FILEBROWSER_TOKEN_EXPIRATION_TIME", "5h")
 
 		cmd := newIsolatedTestCommand()
-		// Parse CLI flags as if user passed --port 7777 --address 127.0.0.1
-		err := cmd.ParseFlags([]string{"--port", "7777", "--address", "127.0.0.1"})
+		v, err := initViper(cmd)
+		require.NoError(t, err)
+
+		assert.Equal(t, "7200", v.GetString("port"), "FILEBROWSER_PORT must serve as fallback when NYX_ and FB_ are unset")
+		assert.Equal(t, "10.30.40.50", v.GetString("address"), "FILEBROWSER_ADDRESS must serve as fallback when NYX_ and FB_ are unset")
+		assert.True(t, v.GetBool("disablePreviewResize"), "FILEBROWSER_DISABLE_PREVIEW_RESIZE must serve as fallback when NYX_ and FB_ are unset")
+		assert.Equal(t, "5h", v.GetString("tokenExpirationTime"), "FILEBROWSER_TOKEN_EXPIRATION_TIME must serve as fallback when NYX_ and FB_ are unset")
+	})
+
+	t.Run("FB_StrictlyOverrides_FILEBROWSER", func(t *testing.T) {
+		_ = os.Unsetenv("NYX_PORT")
+		_ = os.Unsetenv("NYX_ADDRESS")
+		_ = os.Unsetenv("NYX_DISABLE_PREVIEW_RESIZE")
+		_ = os.Unsetenv("NYX_TOKEN_EXPIRATION_TIME")
+
+		t.Setenv("FB_PORT", "8200")
+		t.Setenv("FILEBROWSER_PORT", "7200")
+		t.Setenv("FB_ADDRESS", "10.20.0.1")
+		t.Setenv("FILEBROWSER_ADDRESS", "10.30.0.1")
+		t.Setenv("FB_DISABLE_PREVIEW_RESIZE", "false")
+		t.Setenv("FILEBROWSER_DISABLE_PREVIEW_RESIZE", "true")
+		t.Setenv("FB_TOKEN_EXPIRATION_TIME", "4h")
+		t.Setenv("FILEBROWSER_TOKEN_EXPIRATION_TIME", "1h")
+
+		cmd := newIsolatedTestCommand()
+		v, err := initViper(cmd)
+		require.NoError(t, err)
+
+		assert.Equal(t, "8200", v.GetString("port"), "FB_PORT must override FILEBROWSER_PORT")
+		assert.Equal(t, "10.20.0.1", v.GetString("address"), "FB_ADDRESS must override FILEBROWSER_ADDRESS")
+		assert.False(t, v.GetBool("disablePreviewResize"), "FB_DISABLE_PREVIEW_RESIZE must override FILEBROWSER_DISABLE_PREVIEW_RESIZE")
+		assert.Equal(t, "4h", v.GetString("tokenExpirationTime"), "FB_TOKEN_EXPIRATION_TIME must override FILEBROWSER_TOKEN_EXPIRATION_TIME")
+	})
+
+	t.Run("NYX_StrictlyOverrides_Both_FB_and_FILEBROWSER", func(t *testing.T) {
+		t.Setenv("NYX_PORT", "9200")
+		t.Setenv("FB_PORT", "8200")
+		t.Setenv("FILEBROWSER_PORT", "7200")
+		t.Setenv("NYX_ADDRESS", "192.168.1.50")
+		t.Setenv("FB_ADDRESS", "10.20.0.1")
+		t.Setenv("FILEBROWSER_ADDRESS", "10.30.0.1")
+		t.Setenv("NYX_DISABLE_PREVIEW_RESIZE", "true")
+		t.Setenv("FB_DISABLE_PREVIEW_RESIZE", "false")
+		t.Setenv("FILEBROWSER_DISABLE_PREVIEW_RESIZE", "false")
+		t.Setenv("NYX_TOKEN_EXPIRATION_TIME", "8h")
+		t.Setenv("FB_TOKEN_EXPIRATION_TIME", "4h")
+		t.Setenv("FILEBROWSER_TOKEN_EXPIRATION_TIME", "1h")
+
+		cmd := newIsolatedTestCommand()
+		v, err := initViper(cmd)
+		require.NoError(t, err)
+
+		assert.Equal(t, "9200", v.GetString("port"), "NYX_PORT must override FB_PORT and FILEBROWSER_PORT")
+		assert.Equal(t, "192.168.1.50", v.GetString("address"), "NYX_ADDRESS must override FB_ADDRESS and FILEBROWSER_ADDRESS")
+		assert.True(t, v.GetBool("disablePreviewResize"), "NYX_DISABLE_PREVIEW_RESIZE must override FB_ and FILEBROWSER_")
+		assert.Equal(t, "8h", v.GetString("tokenExpirationTime"), "NYX_TOKEN_EXPIRATION_TIME must override FB_ and FILEBROWSER_")
+	})
+
+	t.Run("CLIFlags_StrictlyOverride_All_Three_Env_Prefixes", func(t *testing.T) {
+		t.Setenv("NYX_PORT", "9300")
+		t.Setenv("FB_PORT", "8300")
+		t.Setenv("FILEBROWSER_PORT", "7300")
+		t.Setenv("NYX_ADDRESS", "192.168.1.99")
+		t.Setenv("FB_ADDRESS", "10.99.99.99")
+		t.Setenv("FILEBROWSER_ADDRESS", "10.88.88.88")
+
+		cmd := newIsolatedTestCommand()
+		// Parse CLI flags as if user passed --port 5555 --address 127.0.0.2
+		err := cmd.ParseFlags([]string{"--port", "5555", "--address", "127.0.0.2"})
 		require.NoError(t, err)
 
 		v, err := initViper(cmd)
 		require.NoError(t, err)
 
-		assert.Equal(t, "7777", v.GetString("port"), "CLI flag --port must override both NYX_PORT and FB_PORT")
-		assert.Equal(t, "127.0.0.1", v.GetString("address"), "CLI flag --address must override both NYX_ADDRESS and FB_ADDRESS")
+		assert.Equal(t, "5555", v.GetString("port"), "CLI flag --port must override NYX_, FB_, and FILEBROWSER_")
+		assert.Equal(t, "127.0.0.2", v.GetString("address"), "CLI flag --address must override NYX_, FB_, and FILEBROWSER_")
 	})
 
-	t.Run("FullPrecedenceChain_Flags_Over_NYX_Over_FB_Over_Config_Over_Defaults", func(t *testing.T) {
+	t.Run("Full6TierPrecedenceChain_Flags_Over_NYX_Over_FB_Over_FILEBROWSER_Over_Config_Over_Defaults", func(t *testing.T) {
 		tempDir := t.TempDir()
 		t.Setenv("HOME", tempDir)
 		origDir, err := os.Getwd()
 		require.NoError(t, err)
 
-		// Config file sets port: 6000, address: 127.0.0.6, tokenExpirationTime: 1h
-		configFile := `{"port": "6000", "address": "127.0.0.6", "tokenExpirationTime": "1h"}`
+		// Config file sets port: 6000, address: 127.0.0.6, tokenExpirationTime: 1h, log: stdout
+		configFile := `{"port": "6000", "address": "127.0.0.6", "tokenExpirationTime": "1h", "log": "stdout"}`
 		err = os.WriteFile(filepath.Join(tempDir, ".nyx.json"), []byte(configFile), 0644)
 		require.NoError(t, err)
 
@@ -693,31 +771,357 @@ func TestIntegration_DualEnvAndFlagPrecedence(t *testing.T) {
 		require.NoError(t, err)
 		defer func() { _ = os.Chdir(origDir) }()
 
-		// Layer 1: Config file overrides defaults (address)
-		// Layer 2: FB_ overrides config (tokenExpirationTime)
-		t.Setenv("FB_TOKEN_EXPIRATION_TIME", "2h")
-		// Layer 3: NYX_ overrides FB_ and config (port)
+		// Tier 6 (Defaults): imageProcessors (default 4, unset in flags, env, and config)
+		// Tier 5 (Config): address (set in .nyx.json to 127.0.0.6, unset in flags and env)
+		// Tier 4 (FILEBROWSER_): tokenExpirationTime (FILEBROWSER_ overrides config)
+		t.Setenv("FILEBROWSER_TOKEN_EXPIRATION_TIME", "2.5h")
+		// Tier 3 (FB_): port (FB_ overrides FILEBROWSER_ and config)
+		t.Setenv("FILEBROWSER_PORT", "6500")
 		t.Setenv("FB_PORT", "7000")
-		t.Setenv("NYX_PORT", "8000")
-		// Layer 4: CLI flag overrides NYX_ (log)
-		t.Setenv("NYX_LOG", "stdout")
-		t.Setenv("FB_LOG", "stderr")
+		// Tier 2 (NYX_): log (NYX_ overrides FB_, FILEBROWSER_, and config)
+		t.Setenv("FILEBROWSER_LOG", "filebrowser.log")
+		t.Setenv("FB_LOG", "fb.log")
+		t.Setenv("NYX_LOG", "nyx.log")
+		// Tier 1 (CLI Flag): cert (Flag overrides NYX_, FB_, and FILEBROWSER_)
+		t.Setenv("NYX_CERT", "/tmp/nyx.crt")
+		t.Setenv("FB_CERT", "/tmp/fb.crt")
+		t.Setenv("FILEBROWSER_CERT", "/tmp/filebrowser.crt")
 
 		cmd := newIsolatedTestCommand()
-		err = cmd.ParseFlags([]string{"--log", "/tmp/nyx.log"})
+		err = cmd.ParseFlags([]string{"--cert", "/tmp/cli.crt"})
 		require.NoError(t, err)
 
 		v, err := initViper(cmd)
 		require.NoError(t, err)
 
-		// Flag > Env
-		assert.Equal(t, "/tmp/nyx.log", v.GetString("log"), "Flag must override Env")
-		// NYX_ > FB_ > Config
-		assert.Equal(t, "8000", v.GetString("port"), "NYX_ must override FB_ and config")
-		// FB_ > Config
-		assert.Equal(t, "2h", v.GetString("tokenExpirationTime"), "FB_ must override config when NYX_ unset")
-		// Config > Default
-		assert.Equal(t, "127.0.0.6", v.GetString("address"), "Config must override default when env unset")
+		// Tier 1 > Tier 2: Flag overrides NYX_
+		assert.Equal(t, "/tmp/cli.crt", v.GetString("cert"), "CLI flag must override NYX_ environment variable")
+		// Tier 2 > Tier 3: NYX_ overrides FB_
+		assert.Equal(t, "nyx.log", v.GetString("log"), "NYX_ must override FB_ environment variable")
+		// Tier 3 > Tier 4: FB_ overrides FILEBROWSER_
+		assert.Equal(t, "7000", v.GetString("port"), "FB_ must override FILEBROWSER_ environment variable")
+		// Tier 4 > Tier 5: FILEBROWSER_ overrides Config
+		assert.Equal(t, "2.5h", v.GetString("tokenExpirationTime"), "FILEBROWSER_ must override config file")
+		// Tier 5 > Tier 6: Config overrides Default
+		assert.Equal(t, "127.0.0.6", v.GetString("address"), "Config file must override default value")
+		// Tier 6: Default fallback when nothing is set
+		assert.Equal(t, 4, v.GetInt("imageProcessors"), "Default value must be used when no flag, env, or config is set")
+	})
+
+	t.Run("BaseURLDeprecationFallback", func(t *testing.T) {
+		// Helper to create an isolated test Bolt storage fixture initialized with server settings
+		setupTestStorage := func(t *testing.T) *storage.Storage {
+			t.Helper()
+			dbPath := filepath.Join(t.TempDir(), "nyx.db")
+			db, err := storm.Open(dbPath, storm.BoltOptions(databasePermissions, nil))
+			require.NoError(t, err)
+			t.Cleanup(func() { _ = db.Close() })
+
+			st, err := bolt.NewStorage(db)
+			require.NoError(t, err)
+
+			err = st.Settings.SaveServer(&settings.Server{})
+			require.NoError(t, err)
+
+			return st
+		}
+
+		// Helper to clear all BaseURL-related environment variables
+		clearBaseURLEnvs := func(t *testing.T) {
+			t.Helper()
+			for _, env := range []string{
+				"NYX_BASE_URL", "NYX_BASEURL",
+				"FB_BASE_URL", "FB_BASEURL",
+				"FILEBROWSER_BASE_URL", "FILEBROWSER_BASEURL",
+			} {
+				_ = os.Unsetenv(env)
+			}
+		}
+
+		// Scenario 1: When only FILEBROWSER_BASEURL is set, production getServerSettings
+		// must resolve it as the fallback.
+		t.Run("FILEBROWSER_BASEURL_Fallback", func(t *testing.T) {
+			clearBaseURLEnvs(t)
+			t.Setenv("FILEBROWSER_BASEURL", "/filebrowser-base")
+
+			st := setupTestStorage(t)
+			cmd := newIsolatedTestCommand()
+			v, err := initViper(cmd)
+			require.NoError(t, err)
+
+			server, err := getServerSettings(v, st, cmd)
+			require.NoError(t, err)
+			assert.Equal(t, "/filebrowser-base", server.BaseURL,
+				"FILEBROWSER_BASEURL must be used when all higher-priority variables are unset")
+		})
+
+		// Scenario 2: FILEBROWSER_BASE_URL overrides FILEBROWSER_BASEURL
+		t.Run("FILEBROWSER_BASE_URL_Overrides_FILEBROWSER_BASEURL", func(t *testing.T) {
+			clearBaseURLEnvs(t)
+			t.Setenv("FILEBROWSER_BASEURL", "/filebrowser-flat")
+			t.Setenv("FILEBROWSER_BASE_URL", "/filebrowser-snake")
+
+			st := setupTestStorage(t)
+			cmd := newIsolatedTestCommand()
+			v, err := initViper(cmd)
+			require.NoError(t, err)
+
+			server, err := getServerSettings(v, st, cmd)
+			require.NoError(t, err)
+			assert.Equal(t, "/filebrowser-snake", server.BaseURL,
+				"FILEBROWSER_BASE_URL must override FILEBROWSER_BASEURL")
+		})
+
+		// Scenario 3: FB_BASEURL must override FILEBROWSER_BASE_URL and FILEBROWSER_BASEURL
+		t.Run("FB_BASEURL_Overrides_FILEBROWSER_Variants", func(t *testing.T) {
+			clearBaseURLEnvs(t)
+			t.Setenv("FILEBROWSER_BASE_URL", "/filebrowser-snake")
+			t.Setenv("FILEBROWSER_BASEURL", "/filebrowser-flat")
+			t.Setenv("FB_BASEURL", "/fb-flat")
+
+			st := setupTestStorage(t)
+			cmd := newIsolatedTestCommand()
+			v, err := initViper(cmd)
+			require.NoError(t, err)
+
+			server, err := getServerSettings(v, st, cmd)
+			require.NoError(t, err)
+			assert.Equal(t, "/fb-flat", server.BaseURL,
+				"FB_BASEURL (Tier 3) must override FILEBROWSER_BASE_URL and FILEBROWSER_BASEURL (Tier 4)")
+		})
+
+		// Scenario 4: FB_BASE_URL overrides FB_BASEURL
+		t.Run("FB_BASE_URL_Overrides_FB_BASEURL", func(t *testing.T) {
+			clearBaseURLEnvs(t)
+			t.Setenv("FILEBROWSER_BASE_URL", "/filebrowser-snake")
+			t.Setenv("FILEBROWSER_BASEURL", "/filebrowser-flat")
+			t.Setenv("FB_BASEURL", "/fb-flat")
+			t.Setenv("FB_BASE_URL", "/fb-snake")
+
+			st := setupTestStorage(t)
+			cmd := newIsolatedTestCommand()
+			v, err := initViper(cmd)
+			require.NoError(t, err)
+
+			server, err := getServerSettings(v, st, cmd)
+			require.NoError(t, err)
+			assert.Equal(t, "/fb-snake", server.BaseURL,
+				"FB_BASE_URL must override FB_BASEURL")
+		})
+
+		// Scenario 5: NYX_BASEURL must override FB_BASE_URL, FB_BASEURL, and FILEBROWSER_* (precedence inversion fix)
+		t.Run("NYX_BASEURL_Overrides_FB_And_FILEBROWSER_Variants", func(t *testing.T) {
+			clearBaseURLEnvs(t)
+			t.Setenv("FILEBROWSER_BASE_URL", "/filebrowser-snake")
+			t.Setenv("FILEBROWSER_BASEURL", "/filebrowser-flat")
+			t.Setenv("FB_BASE_URL", "/fb-snake")
+			t.Setenv("FB_BASEURL", "/fb-flat")
+			t.Setenv("NYX_BASEURL", "/nyx-flat")
+
+			st := setupTestStorage(t)
+			cmd := newIsolatedTestCommand()
+			v, err := initViper(cmd)
+			require.NoError(t, err)
+
+			server, err := getServerSettings(v, st, cmd)
+			require.NoError(t, err)
+			assert.Equal(t, "/nyx-flat", server.BaseURL,
+				"NYX_BASEURL (Tier 2) must override FB_BASE_URL (Tier 3) and FILEBROWSER_BASE_URL (Tier 4)")
+		})
+
+		// Scenario 6: Modern NYX_BASE_URL must override deprecated NYX_BASEURL and all legacy variables
+		t.Run("NYX_BASE_URL_Overrides_NYX_BASEURL", func(t *testing.T) {
+			clearBaseURLEnvs(t)
+			t.Setenv("FILEBROWSER_BASE_URL", "/filebrowser-snake")
+			t.Setenv("FILEBROWSER_BASEURL", "/filebrowser-flat")
+			t.Setenv("FB_BASE_URL", "/fb-snake")
+			t.Setenv("FB_BASEURL", "/fb-flat")
+			t.Setenv("NYX_BASEURL", "/nyx-flat")
+			t.Setenv("NYX_BASE_URL", "/nyx-modern")
+
+			st := setupTestStorage(t)
+			cmd := newIsolatedTestCommand()
+			v, err := initViper(cmd)
+			require.NoError(t, err)
+
+			server, err := getServerSettings(v, st, cmd)
+			require.NoError(t, err)
+			assert.Equal(t, "/nyx-modern", server.BaseURL,
+				"NYX_BASE_URL must take precedence over deprecated NYX_BASEURL and legacy variables")
+		})
+
+		// Scenario 7: CLI flag --baseURL must override ALL environment variables
+		t.Run("CLIFlag_Overrides_AllEnvVars", func(t *testing.T) {
+			clearBaseURLEnvs(t)
+			t.Setenv("FILEBROWSER_BASE_URL", "/filebrowser-snake")
+			t.Setenv("FILEBROWSER_BASEURL", "/filebrowser-flat")
+			t.Setenv("FB_BASE_URL", "/fb-snake")
+			t.Setenv("FB_BASEURL", "/fb-flat")
+			t.Setenv("NYX_BASEURL", "/nyx-flat")
+			t.Setenv("NYX_BASE_URL", "/nyx-modern")
+
+			st := setupTestStorage(t)
+			cmd := newIsolatedTestCommand()
+			err := cmd.ParseFlags([]string{"--baseURL", "/cli-flag-override"})
+			require.NoError(t, err)
+
+			v, err := initViper(cmd)
+			require.NoError(t, err)
+
+			server, err := getServerSettings(v, st, cmd)
+			require.NoError(t, err)
+			assert.Equal(t, "/cli-flag-override", server.BaseURL,
+				"CLI flag --baseURL must strictly override all environment variables")
+		})
+
+		// Scenario 8: CLI short flag -b must override ALL environment variables
+		t.Run("CLIShortFlag_Overrides_AllEnvVars", func(t *testing.T) {
+			clearBaseURLEnvs(t)
+			t.Setenv("FILEBROWSER_BASE_URL", "/filebrowser-snake")
+			t.Setenv("FB_BASE_URL", "/fb-snake")
+			t.Setenv("NYX_BASE_URL", "/nyx-modern")
+
+			st := setupTestStorage(t)
+			cmd := newIsolatedTestCommand()
+			err := cmd.ParseFlags([]string{"-b", "/cli-short-flag-override"})
+			require.NoError(t, err)
+
+			v, err := initViper(cmd)
+			require.NoError(t, err)
+
+			server, err := getServerSettings(v, st, cmd)
+			require.NoError(t, err)
+			assert.Equal(t, "/cli-short-flag-override", server.BaseURL,
+				"CLI short flag -b must strictly override all environment variables")
+		})
+
+		// Scenario 9: CLI flag alias --baseurl must override ALL environment variables
+		t.Run("CLIFlagAlias_Overrides_AllEnvVars", func(t *testing.T) {
+			clearBaseURLEnvs(t)
+			t.Setenv("FILEBROWSER_BASE_URL", "/filebrowser-snake")
+			t.Setenv("FB_BASE_URL", "/fb-snake")
+			t.Setenv("NYX_BASE_URL", "/nyx-modern")
+
+			st := setupTestStorage(t)
+			cmd := newIsolatedTestCommand()
+			err := cmd.ParseFlags([]string{"--baseurl", "/cli-alias-override"})
+			require.NoError(t, err)
+
+			v, err := initViper(cmd)
+			require.NoError(t, err)
+
+			server, err := getServerSettings(v, st, cmd)
+			require.NoError(t, err)
+			assert.Equal(t, "/cli-alias-override", server.BaseURL,
+				"CLI flag alias --baseurl must strictly override all environment variables")
+		})
+
+		// Scenario 10: Default fallback when no flags or env vars are present
+		t.Run("DefaultFallback_WhenNoFlagOrEnvSet", func(t *testing.T) {
+			clearBaseURLEnvs(t)
+
+			st := setupTestStorage(t)
+			cmd := newIsolatedTestCommand()
+			v, err := initViper(cmd)
+			require.NoError(t, err)
+
+			server, err := getServerSettings(v, st, cmd)
+			require.NoError(t, err)
+			assert.Equal(t, "", server.BaseURL,
+				"BaseURL must default to empty string when no flag, env var, or config is set")
+		})
+
+		// Scenario 11: Retain database BaseURL when nothing is set
+		t.Run("RetainDatabaseBaseURL_WhenNothingSet", func(t *testing.T) {
+			clearBaseURLEnvs(t)
+
+			dbPath := filepath.Join(t.TempDir(), "nyx.db")
+			db, err := storm.Open(dbPath, storm.BoltOptions(databasePermissions, nil))
+			require.NoError(t, err)
+			defer db.Close()
+
+			st, err := bolt.NewStorage(db)
+			require.NoError(t, err)
+			err = st.Settings.SaveServer(&settings.Server{BaseURL: "/default-db-base"})
+			require.NoError(t, err)
+
+			cmd := newIsolatedTestCommand()
+			v, err := initViper(cmd)
+			require.NoError(t, err)
+
+			server, err := getServerSettings(v, st, cmd)
+			require.NoError(t, err)
+			assert.Equal(t, "/default-db-base", server.BaseURL,
+				"Must retain database BaseURL when no flag, env, or config is set")
+		})
+
+		// Scenario 12: Config file overrides database BaseURL
+		t.Run("ConfigFile_Overrides_DatabaseBaseURL", func(t *testing.T) {
+			clearBaseURLEnvs(t)
+
+			tempDir := t.TempDir()
+			dbPath := filepath.Join(tempDir, "nyx.db")
+			db, err := storm.Open(dbPath, storm.BoltOptions(databasePermissions, nil))
+			require.NoError(t, err)
+			defer db.Close()
+
+			st, err := bolt.NewStorage(db)
+			require.NoError(t, err)
+			err = st.Settings.SaveServer(&settings.Server{BaseURL: "/default-db-base"})
+			require.NoError(t, err)
+
+			t.Setenv("HOME", tempDir)
+			configFile := `{"baseURL": "/config-base"}`
+			err = os.WriteFile(filepath.Join(tempDir, ".nyx.json"), []byte(configFile), 0644)
+			require.NoError(t, err)
+			origDir, _ := os.Getwd()
+			_ = os.Chdir(tempDir)
+			defer func() { _ = os.Chdir(origDir) }()
+
+			cmd := newIsolatedTestCommand()
+			v, err := initViper(cmd)
+			require.NoError(t, err)
+
+			server, err := getServerSettings(v, st, cmd)
+			require.NoError(t, err)
+			assert.Equal(t, "/config-base", server.BaseURL,
+				"Config file must override database BaseURL")
+		})
+
+		// Scenario 13: FILEBROWSER_BASEURL overrides config file
+		t.Run("FILEBROWSER_BASEURL_Overrides_ConfigFile", func(t *testing.T) {
+			clearBaseURLEnvs(t)
+
+			tempDir := t.TempDir()
+			dbPath := filepath.Join(tempDir, "nyx.db")
+			db, err := storm.Open(dbPath, storm.BoltOptions(databasePermissions, nil))
+			require.NoError(t, err)
+			defer db.Close()
+
+			st, err := bolt.NewStorage(db)
+			require.NoError(t, err)
+			err = st.Settings.SaveServer(&settings.Server{BaseURL: "/default-db-base"})
+			require.NoError(t, err)
+
+			t.Setenv("HOME", tempDir)
+			configFile := `{"baseURL": "/config-base"}`
+			err = os.WriteFile(filepath.Join(tempDir, ".nyx.json"), []byte(configFile), 0644)
+			require.NoError(t, err)
+			origDir, _ := os.Getwd()
+			_ = os.Chdir(tempDir)
+			defer func() { _ = os.Chdir(origDir) }()
+
+			t.Setenv("FILEBROWSER_BASEURL", "/fb-tertiary-upper")
+
+			cmd := newIsolatedTestCommand()
+			v, err := initViper(cmd)
+			require.NoError(t, err)
+
+			server, err := getServerSettings(v, st, cmd)
+			require.NoError(t, err)
+			assert.Equal(t, "/fb-tertiary-upper", server.BaseURL,
+				"FILEBROWSER_BASEURL must override config file")
+		})
 	})
 }
 
@@ -930,6 +1334,20 @@ func TestIntegration_EndToEndCLI(t *testing.T) {
 		out, err := cmd.CombinedOutput()
 		require.NoError(t, err, "nyx version must exit cleanly")
 		assert.Contains(t, string(out), "Nyx Browser v")
+	})
+
+	t.Run("VersionFlag", func(t *testing.T) {
+		cmd := exec.Command(binaryPath, "--version")
+		out, err := cmd.CombinedOutput()
+		require.NoError(t, err, "nyx --version must exit cleanly: %s", string(out))
+		assert.Contains(t, string(out), "Nyx Browser version")
+	})
+
+	t.Run("VersionShorthandFlag", func(t *testing.T) {
+		cmd := exec.Command(binaryPath, "-v")
+		out, err := cmd.CombinedOutput()
+		require.NoError(t, err, "nyx -v must exit cleanly: %s", string(out))
+		assert.Contains(t, string(out), "Nyx Browser version")
 	})
 
 	t.Run("ConfigInit_And_UsersAdd_Workflow", func(t *testing.T) {

@@ -103,12 +103,12 @@ func initViper(cmd *cobra.Command) (*viper.Viper, error) {
 	v.AutomaticEnv()
 	v.SetEnvKeyReplacer(strings.NewReplacer(generateEnvKeyReplacements(cmd)...))
 
-	// Bind fallback FB_<KEY> environment variables so NYX_ takes strict precedence
-	// when both are provided, and FB_ works when NYX_ is absent.
+	// Bind fallback legacy environment variables (FB_ and FILEBROWSER_) so NYX_ takes
+	// strict precedence, followed by FB_, followed by FILEBROWSER_.
 	cmd.Flags().VisitAll(func(f *pflag.Flag) {
 		fbSnake := "FB_" + strings.ToUpper(lo.SnakeCase(f.Name))
-		fbUpper := "FB_" + strings.ToUpper(f.Name)
-		_ = v.BindEnv(f.Name, fbSnake, fbUpper)
+		filebrowserSnake := "FILEBROWSER_" + strings.ToUpper(lo.SnakeCase(f.Name))
+		_ = v.BindEnv(f.Name, fbSnake, filebrowserSnake)
 	})
 
 	// Bind the flags
