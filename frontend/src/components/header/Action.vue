@@ -1,6 +1,6 @@
 <template>
   <button @click="action" :aria-label="label" :title="label" class="action">
-    <i class="material-icons">{{ icon }}</i>
+    <NyxIcon v-if="icon" :name="icon" />
     <span>{{ label }}</span>
     <span v-if="counter && counter > 0" class="counter">{{ counter }}</span>
   </button>
@@ -8,6 +8,7 @@
 
 <script setup lang="ts">
 import { useLayoutStore } from "@/stores/layout";
+import NyxIcon from "@/components/ui/NyxIcon.vue";
 
 const props = defineProps<{
   icon?: string;

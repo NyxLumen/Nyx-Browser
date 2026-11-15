@@ -1,0 +1,77 @@
+/* Nyx Browser - Nothing-Inspired Design Tokens (Phase 02) */
+
+:root {
+  /* Surfaces: Monochromatic near-black chassis */
+  --nyx-bg-canvas: #000000;
+  --nyx-bg-chassis: #080808;
+  --nyx-surface-1: #101010;
+  --nyx-surface-2: #161616;
+  --nyx-surface-3: #222222;
+  --nyx-surface-selected: #1a1213;
+
+  /* Borders & Dividers: Crisp 1px geometric borders */
+  --nyx-border-hairline: rgba(255, 255, 255, 0.06);
+  --nyx-border-subtle: rgba(255, 255, 255, 0.10);
+  --nyx-border-strong: rgba(255, 255, 255, 0.18);
+  --nyx-border-focus: #ffffff;
+  --nyx-border-selected: #d71921;
+
+  /* Typography Colors */
+  --nyx-text-primary: #ffffff;
+  --nyx-text-secondary: #a0a0a0;
+  --nyx-text-muted: #666666;
+  --nyx-text-disabled: #3a3a3a;
+  --nyx-text-inverted: #000000;
+
+  /* Surgical Technical Red Accent (Nothing-inspired) */
+  --nyx-accent-red: #d71921;
+  --nyx-accent-red-hover: #b8141b;
+  --nyx-accent-red-subtle: rgba(215, 25, 33, 0.12);
+  --nyx-accent-red-glow: rgba(215, 25, 33, 0.35);
+
+  /* Functional Status Colors */
+  --nyx-status-success: #10b981;
+  --nyx-status-warning: #f59e0b;
+  --nyx-status-error: #d71921;
+
+  /* Typography Families */
+  --nyx-font-sans: "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  --nyx-font-mono: "JetBrains Mono", "SF Mono", "Fira Code", monospace;
+
+  /* Geometry & Radii */
+  --nyx-radius-xs: 2px;
+  --nyx-radius-sm: 4px;
+  --nyx-radius-md: 6px;
+  --nyx-radius-lg: 8px;
+
+  /* Frosted Glass Filters: Whitelisted for floating overlays only */
+  --nyx-glass-bg: rgba(14, 14, 14, 0.88);
+  --nyx-glass-blur: blur(16px);
+  --nyx-glass-border: 1px solid rgba(255, 255, 255, 0.12);
+  --nyx-glass-shadow: 0 16px 36px rgba(0, 0, 0, 0.8);
+}
+
+/* Dark mode bridge: Map legacy File Browser CSS variables to Nothing tokens */
+:root.dark,
+:root {
+  --background: var(--nyx-bg-canvas);
+  --surfacePrimary: var(--nyx-surface-1);
+  --surfaceSecondary: var(--nyx-surface-2);
+  --textPrimary: var(--nyx-text-primary);
+  --textSecondary: var(--nyx-text-secondary);
+  --divider: var(--nyx-border-hairline);
+  --iconPrimary: var(--nyx-text-primary);
+  --iconSecondary: var(--nyx-text-secondary);
+  --iconTertiary: var(--nyx-text-muted);
+  --hover: var(--nyx-surface-3);
+  --borderPrimary: var(--nyx-border-subtle);
+  --borderSecondary: var(--nyx-border-strong);
+  --dividerPrimary: var(--nyx-border-hairline);
+  --dividerSecondary: var(--nyx-border-subtle);
+
+  /* Map accents to Nothing technical red */
+  --red: var(--nyx-accent-red);
+  --dark-red: var(--nyx-accent-red-hover);
+  --blue: var(--nyx-accent-red);
+  --dark-blue: var(--nyx-accent-red-hover);
+}

@@ -85,13 +85,17 @@
     </script>
 
     <style>
+      html, body {
+        background-color: #000000;
+        color: #ffffff;
+      }
+
       #loading {
         position: fixed;
-        top: 0;
-        left: 0;
+        inset: 0;
         width: 100%;
         height: 100%;
-        background: #fff;
+        background: #000000;
         z-index: 9999;
         transition: 0.1s ease opacity;
         -webkit-transition: 0.1s ease opacity;
@@ -112,9 +116,9 @@
       }
 
       #loading .spinner > div {
-        width: 18px;
-        height: 18px;
-        background-color: #333;
+        width: 14px;
+        height: 14px;
+        background-color: #d71921;
         border-radius: 100%;
         display: inline-block;
         -webkit-animation: sk-bouncedelay 1.4s infinite ease-in-out both;

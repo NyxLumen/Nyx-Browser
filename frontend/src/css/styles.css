@@ -1,6 +1,7 @@
 @import "normalize.css/normalize.css";
 @import "vue-toastification/dist/index.css";
 @import "./_variables.css";
+@import "./tokens.css";
 @import "./_buttons.css";
 @import "./_inputs.css";
 @import "./_shell.css";

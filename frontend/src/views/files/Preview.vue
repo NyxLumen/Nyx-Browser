@@ -163,7 +163,7 @@
       :aria-label="$t('buttons.previous')"
       :title="$t('buttons.previous')"
     >
-      <i class="material-icons">chevron_left</i>
+      <NyxIcon name="chevron_left" size="1.75em" />
     </button>
     <button
       @click="next"
@@ -173,7 +173,7 @@
       :aria-label="$t('buttons.next')"
       :title="$t('buttons.next')"
     >
-      <i class="material-icons">chevron_right</i>
+      <NyxIcon name="chevron_right" size="1.75em" />
     </button>
     <link rel="prefetch" :href="previousRaw" />
     <link rel="prefetch" :href="nextRaw" />
@@ -193,6 +193,7 @@ import url from "@/utils/url";
 import { throttle } from "lodash-es";
 import HeaderBar from "@/components/header/HeaderBar.vue";
 import Action from "@/components/header/Action.vue";
+import NyxIcon from "@/components/ui/NyxIcon.vue";
 import ExtendedImage from "@/components/files/ExtendedImage.vue";
 import VideoPlayer from "@/components/files/VideoPlayer.vue";
 import CsvViewer from "@/components/files/CsvViewer.vue";
