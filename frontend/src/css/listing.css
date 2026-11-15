@@ -118,11 +118,11 @@ html[dir="rtl"] #listing {
 }
 
 #listing.mosaic .item div:first-of-type {
-  width: 5em;
+  width: auto;
 }
 
 #listing.mosaic .item div:last-of-type {
-  width: calc(100% - 5vw);
+  width: 100%;
 }
 
 #listing.mosaic.gallery .item div:first-of-type {

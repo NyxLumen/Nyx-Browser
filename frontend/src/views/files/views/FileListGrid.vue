@@ -101,6 +101,109 @@ const base64 = (name: string) => Base64.encodeURI(name);
   grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
   gap: 12px;
   padding: 4px;
+  width: 100%;
+  box-sizing: border-box;
+}
+
+/* Explicit geometric card styling for ListingItem */
+.file-list-grid__grid :deep(.item) {
+  width: 100% !important;
+  max-width: 100% !important;
+  min-height: 130px !important;
+  margin: 0 !important;
+  padding: 14px 12px !important;
+  display: flex !important;
+  flex-direction: column !important;
+  align-items: center !important;
+  justify-content: center !important;
+  background-color: var(--nyx-surface-1) !important;
+  border: 1px solid var(--nyx-border-hairline) !important;
+  border-radius: var(--nyx-radius-sm) !important;
+  box-shadow: none !important;
+  cursor: pointer !important;
+  box-sizing: border-box !important;
+  transition: all 0.15s ease !important;
+}
+
+.file-list-grid__grid :deep(.item:hover) {
+  background-color: var(--nyx-surface-2) !important;
+  border-color: var(--nyx-border-strong) !important;
+}
+
+.file-list-grid__grid :deep(.item[aria-selected="true"]) {
+  background-color: var(--nyx-surface-selected) !important;
+  border-color: var(--nyx-accent-red) !important;
+  box-shadow: 0 0 12px var(--nyx-accent-red-glow) !important;
+}
+
+/* Icon / Thumbnail Box */
+.file-list-grid__grid :deep(.item > div:first-of-type) {
+  width: 100% !important;
+  height: 64px !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  overflow: hidden !important;
+  margin-bottom: 8px !important;
+  flex-shrink: 0 !important;
+}
+
+.file-list-grid__grid :deep(.item > div:first-of-type i) {
+  font-size: 40px !important;
+  line-height: 1 !important;
+  margin: 0 !important;
+  color: var(--nyx-text-secondary) !important;
+}
+
+.file-list-grid__grid :deep(.item > div:first-of-type img) {
+  max-width: 100% !important;
+  max-height: 100% !important;
+  width: auto !important;
+  height: auto !important;
+  object-fit: contain !important;
+  border-radius: var(--nyx-radius-xs) !important;
+  margin: 0 !important;
+}
+
+/* Text Container */
+.file-list-grid__grid :deep(.item > div:last-of-type) {
+  width: 100% !important;
+  display: flex !important;
+  flex-direction: column !important;
+  align-items: center !important;
+  text-align: center !important;
+  overflow: hidden !important;
+  min-width: 0 !important;
+}
+
+/* Name */
+.file-list-grid__grid :deep(.item .name) {
+  width: 100% !important;
+  font-size: 13px !important;
+  font-weight: 500 !important;
+  color: var(--nyx-text-primary) !important;
+  overflow: hidden !important;
+  text-overflow: ellipsis !important;
+  white-space: nowrap !important;
+  line-height: 1.4 !important;
+  text-align: center !important;
+  display: block !important;
+}
+
+/* Size */
+.file-list-grid__grid :deep(.item .size) {
+  width: 100% !important;
+  font-family: var(--nyx-font-mono) !important;
+  font-size: 11px !important;
+  color: var(--nyx-text-muted) !important;
+  margin-top: 4px !important;
+  text-align: center !important;
+  display: block !important;
+}
+
+/* Modified date hidden in grid cards for clean minimal look */
+.file-list-grid__grid :deep(.item .modified) {
+  display: none !important;
 }
 
 @media (max-width: 600px) {

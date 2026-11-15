@@ -699,15 +699,7 @@ const paste = async (event: Event) => {
 };
 
 const columnsResize = () => {
-  // Update the columns size based on the window width.
-  const items_ = css(["#listing.mosaic .item", ".mosaic#listing .item"]);
-  if (items_ === null) return;
-
-  let columns = Math.floor(
-    (document.querySelector("main")?.offsetWidth ?? 0) / columnWidth.value
-  );
-  if (columns === 0) columns = 1;
-  items_.style.width = `calc(${100 / columns}% - 1em)`;
+  // Grid layout handles column widths natively via CSS Grid auto-fill
 };
 
 const scrollEvent = throttle(() => {
