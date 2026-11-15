@@ -168,95 +168,27 @@
         :class="authStore.user?.viewMode ?? ''"
         @click="handleEmptyAreaClick"
       >
-        <div>
-          <div class="item header">
-            <div>
-              <p
-                :class="{ active: nameSorted }"
-                class="name"
-                role="button"
-                tabindex="0"
-                @click="sort('name')"
-                :title="t('files.sortByName')"
-                :aria-label="t('files.sortByName')"
-              >
-                <span>{{ t("files.name") }}</span>
-                <i class="material-icons">{{ nameIcon }}</i>
-              </p>
-
-              <p
-                :class="{ active: sizeSorted }"
-                class="size"
-                role="button"
-                tabindex="0"
-                @click="sort('size')"
-                :title="t('files.sortBySize')"
-                :aria-label="t('files.sortBySize')"
-              >
-                <span>{{ t("files.size") }}</span>
-                <i class="material-icons">{{ sizeIcon }}</i>
-              </p>
-              <p
-                :class="{ active: modifiedSorted }"
-                class="modified"
-                role="button"
-                tabindex="0"
-                @click="sort('modified')"
-                :title="t('files.sortByLastModified')"
-                :aria-label="t('files.sortByLastModified')"
-              >
-                <span>{{ t("files.lastModified") }}</span>
-                <i class="material-icons">{{ modifiedIcon }}</i>
-              </p>
-            </div>
-          </div>
-        </div>
-
-        <h2 data-clear-on-click="true" v-if="fileStore.req?.numDirs ?? false">
-          {{ t("files.folders") }}
-        </h2>
-        <div
-          v-if="fileStore.req?.numDirs ?? false"
-          data-clear-on-click="true"
+        <FileListTable
+          v-if="!isGridView"
+          :dirs="dirs"
+          :files="files"
+          :nameSorted="nameSorted"
+          :sizeSorted="sizeSorted"
+          :modifiedSorted="modifiedSorted"
+          :nameIcon="nameIcon"
+          :sizeIcon="sizeIcon"
+          :modifiedIcon="modifiedIcon"
+          @sort="sort"
           @contextmenu="showContextMenu"
-        >
-          <item
-            v-for="item in dirs"
-            :key="base64(item.name)"
-            v-bind:index="item.index"
-            v-bind:name="item.name"
-            v-bind:isDir="item.isDir"
-            v-bind:url="item.url"
-            v-bind:modified="item.modified"
-            v-bind:type="item.type"
-            v-bind:size="item.size"
-            v-bind:path="item.path"
-          >
-          </item>
-        </div>
+        />
 
-        <h2 data-clear-on-click="true" v-if="fileStore.req?.numFiles ?? false">
-          {{ t("files.files") }}
-        </h2>
-        <div
-          v-if="fileStore.req?.numFiles ?? false"
-          data-clear-on-click="true"
+        <FileListGrid
+          v-else
+          :dirs="dirs"
+          :files="files"
           @contextmenu="showContextMenu"
-        >
-          <item
-            v-for="item in files"
-            :key="base64(item.name)"
-            v-bind:index="item.index"
-            v-bind:name="item.name"
-            v-bind:isDir="item.isDir"
-            v-bind:url="item.url"
-            v-bind:modified="item.modified"
-            v-bind:type="item.type"
-            v-bind:size="item.size"
-            v-bind:path="item.path"
-          >
-          </item>
-        </div>
+        />
+
         <context-menu
           :show="isContextMenuVisible"
           :pos="contextMenuPos"
@@ -334,6 +266,19 @@
             <i class="material-icons">clear</i>
           </div>
         </div>
+
+        <FileActionPill
+          :selectedCount="fileStore.selectedCount"
+          @share="layoutStore.showHover('share')"
+          @rename="layoutStore.showHover('rename')"
+          @copy="copySelected"
+          @move="moveSelected"
+          @download="download"
+          @delete="layoutStore.showHover('delete')"
+          @clear="clearSelection"
+        />
+
+        <UploadProgressDrawer />
       </div>
     </template>
   </div>
@@ -358,6 +303,10 @@ import Action from "@/components/header/Action.vue";
 import Search from "@/components/Search.vue";
 import Item from "@/components/files/ListingItem.vue";
 import ContextMenu from "@/components/ContextMenu.vue";
+import FileListTable from "./views/FileListTable.vue";
+import FileListGrid from "./views/FileListGrid.vue";
+import FileActionPill from "./components/FileActionPill.vue";
+import UploadProgressDrawer from "./components/UploadProgressDrawer.vue";
 import {
   computed,
   inject,
@@ -493,6 +442,22 @@ const headerButtons = computed(() => {
 const isMobile = computed(() => {
   return width.value <= 736;
 });
+
+const isGridView = computed(() => {
+  return (authStore.user?.viewMode ?? "list") !== "list";
+});
+
+const copySelected = () => {
+  copyCut({ key: "c", target: {} } as any);
+};
+
+const moveSelected = () => {
+  copyCut({ key: "x", target: {} } as any);
+};
+
+const clearSelection = () => {
+  fileStore.selected = [];
+};
 
 watch(req, () => {
   // Reset the show value

@@ -21,18 +21,23 @@ html[dir="rtl"] #listing {
 }
 
 #listing .item {
-  background: var(--surfacePrimary);
-  border-color: var(--divider);
+  background: var(--nyx-surface-1);
+  border-color: var(--nyx-border-hairline);
   position: relative;
   display: flex;
   flex-wrap: nowrap;
-  color: var(--textPrimary);
+  color: var(--nyx-text-primary);
   transition:
-    0.1s ease background,
+    0.12s ease background,
+    0.12s ease border-color,
     0.1s ease opacity;
   align-items: center;
   cursor: pointer;
   user-select: none;
+}
+
+#listing .item:hover {
+  background: var(--nyx-surface-2);
 }
 
 #listing .item div:last-of-type {
@@ -47,7 +52,10 @@ html[dir="rtl"] #listing {
 
 #listing .item .size,
 #listing .item .modified {
-  font-size: 0.9em;
+  font-family: var(--nyx-font-mono);
+  font-feature-settings: "tnum";
+  font-size: 0.85em;
+  color: var(--nyx-text-secondary);
 }
 
 #listing .item .name {
@@ -172,8 +180,18 @@ html[dir="rtl"] #listing {
 }
 
 #listing .item[aria-selected="true"] {
-  background: var(--blue) !important;
-  color: var(--iconSecondary) !important;
+  background: var(--nyx-surface-selected) !important;
+  color: var(--nyx-text-primary) !important;
+  border-color: var(--nyx-accent-red) !important;
+}
+
+#listing.list .item[aria-selected="true"] {
+  border-left: 2px solid var(--nyx-accent-red) !important;
+}
+
+#listing.mosaic .item[aria-selected="true"] {
+  border: 1px solid var(--nyx-accent-red) !important;
+  box-shadow: 0 0 12px var(--nyx-accent-red-glow) !important;
 }
 
 #listing.list .item div:first-of-type {
