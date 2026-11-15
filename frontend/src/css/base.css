@@ -9,11 +9,9 @@ body {
   box-sizing: border-box;
 }
 
-*,
-*:hover,
-*:active,
-*:focus {
-  outline: 0;
+:focus-visible {
+  outline: 2px solid var(--nyx-border-focus);
+  outline-offset: 2px;
 }
 
 a {

@@ -30,18 +30,27 @@ const hideContextMenu = () => {
   emit("hide");
 };
 
+const handleKeydown = (e: KeyboardEvent) => {
+  if (e.key === "Escape") {
+    hideContextMenu();
+  }
+};
+
 watch(
   () => props.show,
   (val) => {
     if (val) {
       document.addEventListener("click", hideContextMenu);
+      document.addEventListener("keydown", handleKeydown);
     } else {
       document.removeEventListener("click", hideContextMenu);
+      document.removeEventListener("keydown", handleKeydown);
     }
   }
 );
 
 onUnmounted(() => {
   document.removeEventListener("click", hideContextMenu);
+  document.removeEventListener("keydown", handleKeydown);
 });
 </script>

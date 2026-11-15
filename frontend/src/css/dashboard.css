@@ -159,26 +159,24 @@ table tr > *:last-child {
 .card {
   position: relative;
   margin: 0 0 1rem 0;
-  background: var(--surfacePrimary);
-  color: var(--textSecondary);
-  border-radius: 2px;
-  box-shadow:
-    0 2px 2px 0 rgba(0, 0, 0, 0.14),
-    0 1px 5px 0 rgba(0, 0, 0, 0.12),
-    0 3px 1px -2px rgba(0, 0, 0, 0.2);
+  background: var(--nyx-surface-1);
+  color: var(--nyx-text-secondary);
+  border: 1px solid var(--nyx-border-hairline);
+  border-radius: var(--nyx-radius-sm);
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.8);
   overflow: auto;
 }
 
 .card.floating {
-  position: fixed;
-  top: 50%;
-  left: 50%;
-  transform: translate(-50%, -50%);
-  max-width: 25em;
+  position: relative;
+  max-width: 28em;
   width: 90%;
-  max-height: 95%;
-  /* animation-duration: 0.3s;
-  animation-fill-mode: forwards; */
+  max-height: 90vh;
+  max-height: 90dvh;
+  background: var(--nyx-surface-1);
+  border: 1px solid var(--nyx-border-strong);
+  border-radius: var(--nyx-radius-md);
+  box-shadow: 0 24px 48px rgba(0, 0, 0, 0.9);
 }
 
 .card > * > *:first-child {
@@ -190,8 +188,19 @@ table tr > *:last-child {
 }
 
 .card .card-title {
-  padding: 1.5em 1em 1em;
+  padding: 1.25em 1.25em 0.75em;
   display: flex;
+  align-items: center;
+  border-bottom: 1px solid var(--nyx-border-hairline);
+}
+
+.card .card-title h2 {
+  font-family: var(--nyx-font-mono);
+  font-size: 13px;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  color: var(--nyx-text-primary);
+  text-transform: uppercase;
 }
 
 .card .card-title > *:first-child {
@@ -208,11 +217,11 @@ html[dir="rtl"] .card .card-title > *:first-child {
 }
 
 .card > div:first-child {
-  padding-top: 1.5em;
+  padding-top: 1.25em;
 }
 
 .card > div:last-child {
-  padding-bottom: 1.5em;
+  padding-bottom: 1.25em;
 }
 
 .card .card-title * {
@@ -220,7 +229,13 @@ html[dir="rtl"] .card .card-title > *:first-child {
 }
 
 .card .card-action {
+  padding: 1em 1.25em;
+  border-top: 1px solid var(--nyx-border-hairline);
   text-align: right;
+  display: flex;
+  justify-content: flex-end;
+  align-items: center;
+  gap: 8px;
 }
 
 body.rtl .card .card-action {

@@ -1,21 +1,42 @@
 .context-menu {
   position: absolute;
-  background: var(--surfacePrimary);
+  background: var(--nyx-glass-bg);
+  backdrop-filter: var(--nyx-glass-blur);
+  -webkit-backdrop-filter: var(--nyx-glass-blur);
   min-width: 180px;
-  max-width: 220px;
-  border: 1px solid var(--borderSecondary);
-  box-shadow: 0 2px 4px var(--borderPrimary);
-  z-index: 999;
+  max-width: 240px;
+  border: var(--nyx-glass-border);
+  border-radius: var(--nyx-radius-sm);
+  box-shadow: var(--nyx-glass-shadow);
+  padding: 4px;
+  z-index: 9999;
+  user-select: none;
 }
 
 .context-menu .action {
-  display: block;
-  width: 100%;
-  border-radius: 0;
   display: flex;
   align-items: center;
+  gap: 10px;
+  width: 100%;
+  height: 36px;
+  padding: 0 10px;
+  border-radius: var(--nyx-radius-xs);
+  background: transparent;
+  border: 1px solid transparent;
+  color: var(--nyx-text-secondary);
+  font-size: 13px;
+  cursor: pointer;
+  transition: all 0.12s ease;
+  white-space: nowrap;
+}
+
+.context-menu .action:hover {
+  background-color: var(--nyx-surface-3);
+  color: var(--nyx-text-primary);
 }
 
 .context-menu .action .counter {
   left: 1.75em;
+  font-family: var(--nyx-font-mono);
+  font-size: 10px;
 }

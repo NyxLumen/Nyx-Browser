@@ -1,18 +1,26 @@
 .button {
   outline: 0;
-  border: 0;
   padding: 0.5em 1em;
-  border-radius: 0.1em;
+  border-radius: var(--nyx-radius-xs);
   cursor: pointer;
-  background: var(--blue);
-  color: white;
-  border: 1px solid var(--divider);
-  box-shadow: 0 0 5px var(--divider);
-  transition: 0.1s ease all;
+  background: var(--nyx-accent-red);
+  color: #ffffff;
+  border: 1px solid var(--nyx-accent-red);
+  font-family: var(--nyx-font-sans);
+  font-size: 13px;
+  font-weight: 500;
+  transition: all 0.15s ease;
+  user-select: none;
 }
 
 .button:hover {
-  background-color: var(--dark-blue);
+  background-color: var(--nyx-accent-red-hover);
+  border-color: var(--nyx-accent-red-hover);
+}
+
+.button:focus-visible {
+  outline: 2px solid var(--nyx-border-focus);
+  outline-offset: 2px;
 }
 
 .button--block {
@@ -21,35 +29,53 @@
   width: 100%;
 }
 
-.button--red {
-  background: var(--red);
+.button--red,
+.button--danger {
+  background: var(--nyx-accent-red);
+  border-color: var(--nyx-accent-red);
+  color: #ffffff;
+}
+
+.button--red:hover,
+.button--danger:hover {
+  background: var(--nyx-accent-red-hover);
+  border-color: var(--nyx-accent-red-hover);
 }
 
 .button--blue {
-  background: var(--blue);
+  background: var(--nyx-accent-red);
+  border-color: var(--nyx-accent-red);
+  color: #ffffff;
 }
 
 .button--flat {
-  color: var(--dark-blue);
+  color: var(--nyx-text-secondary);
   background: transparent;
-  box-shadow: 0 0 0;
-  border: 0;
+  border: 1px solid transparent;
   text-transform: uppercase;
+  font-family: var(--nyx-font-mono);
+  font-size: 12px;
+  letter-spacing: 0.05em;
 }
 
 .button--flat:hover {
-  background: var(--surfaceSecondary);
+  background: var(--nyx-surface-3);
+  color: var(--nyx-text-primary);
 }
 
 .button--flat.button--red {
-  color: var(--dark-red);
+  color: var(--nyx-accent-red);
+}
+
+.button--flat.button--red:hover {
+  background: var(--nyx-accent-red-subtle);
 }
 
 .button--flat.button--grey {
-  color: #6f6f6f;
+  color: var(--nyx-text-muted);
 }
 
 .button[disabled] {
-  opacity: 0.5;
+  opacity: 0.4;
   cursor: not-allowed;
 }
