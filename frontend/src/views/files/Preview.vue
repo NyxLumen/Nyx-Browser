@@ -1,12 +1,14 @@
 <template>
   <div
     id="previewer"
-    @touchmove.prevent.stop
+    @touchmove.prevent
     @wheel.prevent.stop
     @mousemove="toggleNavigation"
     @touchstart="toggleNavigation"
   >
-    <header-bar v-if="isPdf || isEpub || isCsv || showNav">
+    <header-bar
+      :class="{ 'header--hidden': !isPdf && !isEpub && !isCsv && !showNav }"
+    >
       <action icon="close" :label="$t('buttons.close')" @action="close()" />
       <title>{{ name }}</title>
       <action
