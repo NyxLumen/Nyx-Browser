@@ -32,6 +32,7 @@ yarn-error.log*
 *.sw*
 bin/
 build/
+.agents/
 
 # Vue distributable files
 /frontend/dist/*
