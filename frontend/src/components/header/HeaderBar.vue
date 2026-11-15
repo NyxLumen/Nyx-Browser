@@ -6,7 +6,7 @@
       class="menu-button"
       icon="menu"
       :label="t('buttons.toggleSidebar')"
-      @action="layoutStore.showHover('sidebar')"
+      @action="handleToggleSidebar"
     />
 
     <slot />
@@ -54,6 +54,13 @@ const slots = useSlots();
 const { t } = useI18n();
 
 const ifActionsSlot = computed(() => (slots.actions ? true : false));
+
+const handleToggleSidebar = () => {
+  layoutStore.toggleMobileNav();
+  if (layoutStore.currentPromptName === "sidebar") {
+    layoutStore.closeHovers();
+  }
+};
 </script>
 
 <style></style>

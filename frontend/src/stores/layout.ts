@@ -8,10 +8,17 @@ export const useLayoutStore = defineStore("layout", {
     loading: boolean;
     prompts: PopupProps[];
     showShell: boolean | null;
+    isRailExpanded: boolean;
+    isMobileNavOpen: boolean;
   } => ({
     loading: false,
     prompts: [],
     showShell: false,
+    isRailExpanded:
+      typeof window !== "undefined"
+        ? localStorage.getItem("nyx_nav_rail_expanded") !== "false"
+        : true,
+    isMobileNavOpen: false,
   }),
   getters: {
     currentPrompt(state) {
@@ -26,6 +33,20 @@ export const useLayoutStore = defineStore("layout", {
   },
   actions: {
     // no context as first argument, use `this` instead
+    toggleRail() {
+      this.isRailExpanded = !this.isRailExpanded;
+      if (typeof window !== "undefined") {
+        try {
+          localStorage.setItem("nyx_nav_rail_expanded", String(this.isRailExpanded));
+        } catch {}
+      }
+    },
+    toggleMobileNav() {
+      this.isMobileNavOpen = !this.isMobileNavOpen;
+    },
+    closeMobileNav() {
+      this.isMobileNavOpen = false;
+    },
     toggleShell() {
       this.showShell = !this.showShell;
     },

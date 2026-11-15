@@ -1,5 +1,10 @@
 <template>
-  <div>
+  <div
+    class="nyx-shell"
+    :style="{
+      '--nyx-rail-current-width': layoutStore.isRailExpanded ? '240px' : '64px',
+    }"
+  >
     <div v-if="uploadStore.totalBytes" class="progress">
       <div
         v-bind:style="{
@@ -7,8 +12,8 @@
         }"
       ></div>
     </div>
-    <sidebar></sidebar>
-    <main>
+    <NavRail />
+    <main class="nyx-main">
       <router-view></router-view>
       <shell
         v-if="
@@ -16,6 +21,7 @@
         "
       />
     </main>
+    <MobileUploadFab />
     <prompts></prompts>
     <upload-files></upload-files>
   </div>
@@ -26,7 +32,8 @@ import { useAuthStore } from "@/stores/auth";
 import { useLayoutStore } from "@/stores/layout";
 import { useFileStore } from "@/stores/file";
 import { useUploadStore } from "@/stores/upload";
-import Sidebar from "@/components/Sidebar.vue";
+import NavRail from "@/components/layout/NavRail.vue";
+import MobileUploadFab from "@/components/layout/MobileUploadFab.vue";
 import Prompts from "@/components/prompts/Prompts.vue";
 import Shell from "@/components/Shell.vue";
 import UploadFiles from "@/components/prompts/UploadFiles.vue";

@@ -44,6 +44,11 @@
   --nyx-radius-md: 6px;
   --nyx-radius-lg: 8px;
 
+  /* Dimensions */
+  --nyx-rail-collapsed: 64px;
+  --nyx-rail-expanded: 240px;
+  --nyx-header-height: 56px;
+
   /* Frosted Glass Filters: Whitelisted for floating overlays only */
   --nyx-glass-bg: rgba(14, 14, 14, 0.88);
   --nyx-glass-blur: blur(16px);

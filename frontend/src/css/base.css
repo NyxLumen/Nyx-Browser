@@ -90,8 +90,52 @@ nav .action > * {
 
 main {
   min-height: 1em;
-  margin: 0 1em 1em auto;
-  width: calc(100% - 19em);
+  width: 100%;
+  margin: 0;
+  padding: 0 1rem 1rem 1rem;
+}
+
+@media (min-width: 1024px) {
+  header {
+    left: var(--nyx-rail-current-width, 64px) !important;
+    width: calc(100% - var(--nyx-rail-current-width, 64px)) !important;
+    transition: left 0.2s cubic-bezier(0.16, 1, 0.3, 1), width 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+  }
+
+  header > img {
+    display: none;
+  }
+
+  main {
+    margin-left: var(--nyx-rail-current-width, 64px) !important;
+    margin-right: 0 !important;
+    width: calc(100% - var(--nyx-rail-current-width, 64px)) !important;
+    padding: 0 1.5rem 1.5rem 1.5rem;
+    transition: margin-left 0.2s cubic-bezier(0.16, 1, 0.3, 1), width 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+  }
+
+  html[dir="rtl"] header {
+    left: auto !important;
+    right: var(--nyx-rail-current-width, 64px) !important;
+  }
+
+  html[dir="rtl"] main {
+    margin-left: 0 !important;
+    margin-right: var(--nyx-rail-current-width, 64px) !important;
+  }
+}
+
+@media (max-width: 1023px) {
+  header {
+    left: 0 !important;
+    width: 100% !important;
+  }
+
+  main {
+    margin: 0 !important;
+    width: 100% !important;
+    padding: 0 0.75rem 5rem 0.75rem;
+  }
 }
 
 .breadcrumbs {
