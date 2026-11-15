@@ -8,6 +8,8 @@ vi.mock("@/utils/constants", () => ({
   loginPage: false,
   logoutPage: "/login",
   logoURL: "/logo.svg",
+  logoLockupURL: "/img/logo-lockup.svg",
+  logoMarkURL: "/img/logo-mark.svg",
 }));
 vi.mock("@/utils/auth", () => ({
   logout: vi.fn(),

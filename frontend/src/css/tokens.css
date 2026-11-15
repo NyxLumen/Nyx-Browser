@@ -1,6 +1,11 @@
 /* Nyx Browser - Nothing-Inspired Design Tokens (Phase 02) */
 
 :root {
+  /* Brand System Tokens (nyxbrowser official) */
+  --nyx-brand-ink: #0A0A0A;
+  --nyx-brand-fg: #F2F0EA;
+  --nyx-brand-accent: #E5252A;
+
   /* Surfaces: Monochromatic near-black chassis */
   --nyx-bg-canvas: #000000;
   --nyx-bg-chassis: #080808;

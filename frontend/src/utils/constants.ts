@@ -10,6 +10,8 @@ const recaptchaKey: string = appConfig.ReCaptchaKey;
 const signup: boolean = appConfig.Signup;
 const version: string = appConfig.Version;
 const logoURL = `${staticURL}/img/logo.svg`;
+const logoLockupURL = `${staticURL}/img/logo-lockup.svg`;
+const logoMarkURL = `${staticURL}/img/logo-mark.svg`;
 const noAuth: boolean = appConfig.NoAuth;
 const authMethod = appConfig.AuthMethod;
 const logoutPage: string = appConfig.LogoutPage;
@@ -29,6 +31,8 @@ export {
   disableUsedPercentage,
   baseURL,
   logoURL,
+  logoLockupURL,
+  logoMarkURL,
   recaptcha,
   recaptchaKey,
   signup,

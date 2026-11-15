@@ -11,13 +11,33 @@
     <title>Nyx Browser</title>
 
     <link rel="icon" type="image/svg+xml" href="/img/icons/favicon.svg" />
+    <link rel="icon" type="image/png" sizes="32x32" href="/img/icons/favicon-32x32.png" />
+    <link rel="icon" type="image/png" sizes="16x16" href="/img/icons/favicon-16x16.png" />
     <link rel="shortcut icon" href="/img/icons/favicon.ico" />
     <link
       rel="apple-touch-icon"
       sizes="180x180"
       href="/img/icons/apple-touch-icon.png"
     />
+    <link
+      rel="mask-icon"
+      href="/img/icons/safari-pinned-tab.svg"
+      color="#E5252A"
+    />
     <meta name="apple-mobile-web-app-title" content="Nyx Browser" />
+    <meta name="application-name" content="nyxbrowser" />
+    <meta name="msapplication-TileColor" content="#0A0A0A" />
+    <meta name="msapplication-TileImage" content="/img/icons/mstile-150x150.png" />
+    <meta name="msapplication-config" content="/browserconfig.xml" />
+
+    <!-- Social Meta Tags -->
+    <meta property="og:type" content="website" />
+    <meta property="og:site_name" content="nyxbrowser" />
+    <meta property="og:title" content="Nyx Browser" />
+    <meta property="og:image" content="/img/icons/og-image.png" />
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content="Nyx Browser" />
+    <meta name="twitter:image" content="/img/icons/og-image.png" />
 
     <!-- Add to home screen for Android and modern mobile browsers -->
     <link
@@ -25,7 +45,7 @@
       id="manifestPlaceholder"
       crossorigin="use-credentials"
     />
-    <meta name="theme-color" content="#000000" />
+    <meta name="theme-color" content="#0A0A0A" />
 
     <!-- Inject Some Variables and generate the manifest json -->
     <script>
@@ -58,27 +78,31 @@
       };
       var dynamicManifest = {
         name: window.Nyx.Name || "Nyx Browser",
-        short_name: window.Nyx.Name || "Nyx Browser",
+        short_name: "nyxbrowser",
         icons: [
           {
-            src: window.__prependStaticUrl(
-              "/img/icons/android-chrome-192x192.png"
-            ),
+            src: window.__prependStaticUrl("/img/icons/icon-192.png"),
             sizes: "192x192",
             type: "image/png",
+            purpose: "any",
           },
           {
-            src: window.__prependStaticUrl(
-              "/img/icons/android-chrome-512x512.png"
-            ),
+            src: window.__prependStaticUrl("/img/icons/icon-512.png"),
             sizes: "512x512",
             type: "image/png",
+            purpose: "any",
+          },
+          {
+            src: window.__prependStaticUrl("/img/icons/icon-maskable-512.png"),
+            sizes: "512x512",
+            type: "image/png",
+            purpose: "maskable",
           },
         ],
         start_url: window.location.origin + window.Nyx.BaseURL,
         display: "standalone",
-        background_color: "#000000",
-        theme_color: window.Nyx.Color || "#000000",
+        background_color: "#0A0A0A",
+        theme_color: "#0A0A0A",
       };
 
       const stringManifest = JSON.stringify(dynamicManifest);
@@ -91,8 +115,8 @@
 
     <style>
       html, body {
-        background-color: #000000;
-        color: #ffffff;
+        background-color: #0A0A0A;
+        color: #F2F0EA;
       }
 
       #loading {
@@ -100,7 +124,7 @@
         inset: 0;
         width: 100%;
         height: 100%;
-        background: #000000;
+        background: #0A0A0A;
         z-index: 9999;
         transition: 0.1s ease opacity;
         -webkit-transition: 0.1s ease opacity;

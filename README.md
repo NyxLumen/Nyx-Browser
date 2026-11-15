@@ -1,7 +1,7 @@
 # Nyx Browser
 
 <p align="center">
-  <img src="./branding/banner.png" width="550"/>
+  <img src="./branding/logo-lockup.svg" width="400" alt="nyxbrowser" />
 </p>
 
 Nyx Browser is an independent, self-hosted file management and media browsing platform built from a hardened Go and Vue 3 foundation. Designed for local network environments and home servers, it pairs a full-featured, desktop-grade file manager with an upcoming dedicated visual media gallery for photos and videos, wrapped in a minimal dark aesthetic.

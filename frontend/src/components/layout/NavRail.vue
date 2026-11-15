@@ -22,10 +22,18 @@
       <!-- Rail Header / Brand -->
       <div class="nav-rail__header">
         <div class="nav-rail__brand" @click="toFiles">
-          <div class="nav-rail__logo">N</div>
-          <span v-if="layoutStore.isRailExpanded || isMobile" class="nav-rail__brand-text">
-            NYX BROWSER
-          </span>
+          <img
+            v-if="!layoutStore.isRailExpanded && !isMobile"
+            :src="logoMarkURL"
+            class="nav-rail__logo-mark"
+            alt="nyxbrowser"
+          />
+          <img
+            v-else
+            :src="logoLockupURL"
+            class="nav-rail__logo-lockup"
+            alt="nyxbrowser"
+          />
         </div>
       </div>
 
@@ -158,6 +166,8 @@ import {
   noAuth,
   loginPage,
   logoutPage,
+  logoLockupURL,
+  logoMarkURL,
 } from "@/utils/constants";
 
 const authStore = useAuthStore();
@@ -311,29 +321,23 @@ const handleLogout = () => {
   width: 100%;
 }
 
-.nav-rail__logo {
-  width: 32px;
-  height: 32px;
-  background-color: var(--nyx-surface-2);
-  border: 1px solid var(--nyx-accent-red);
-  color: var(--nyx-text-primary);
-  font-family: var(--nyx-font-mono);
-  font-weight: 700;
-  font-size: 16px;
-  display: flex;
-  align-items: center;
+.nav-rail--collapsed .nav-rail__brand {
   justify-content: center;
-  border-radius: var(--nyx-radius-sm);
+}
+
+.nav-rail__logo-mark {
+  height: 28px;
+  width: auto;
+  display: block;
   flex-shrink: 0;
 }
 
-.nav-rail__brand-text {
-  font-family: var(--nyx-font-mono);
-  font-size: 13px;
-  letter-spacing: 0.08em;
-  font-weight: 700;
-  color: var(--nyx-text-primary);
-  white-space: nowrap;
+.nav-rail__logo-lockup {
+  height: 28px;
+  width: auto;
+  max-width: 180px;
+  display: block;
+  flex-shrink: 0;
 }
 
 /* Nav items */
