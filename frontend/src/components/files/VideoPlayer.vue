@@ -80,11 +80,51 @@ const initVideoPlayer = async () => {
       srcOpt,
       playbackRatesOpt
     );
-    player.value = videojs(videoPlayer.value!, options, () => {});
+    player.value = videojs(videoPlayer.value!, options, () => {
+      const p = player.value;
+      if (!p) return;
 
-    // TODO: need to test on mobile
-    // @ts-expect-error no ts definition for mobileUi
-    player.value!.mobileUi();
+      const wakeControls = () => {
+        p.userActive(true);
+      };
+
+      p.on("touchstart", wakeControls);
+      p.on("touchend", wakeControls);
+      p.on("tap", wakeControls);
+      p.on("click", wakeControls);
+
+      // On touch / mobile screens, tapping the video area wakes controls and toggles playback
+      p.on("tap", (e: any) => {
+        if (
+          e.target &&
+          (e.target.closest(".vjs-control-bar") ||
+            e.target.closest(".vjs-big-play-button") ||
+            e.target.closest(".vjs-modal-dialog"))
+        ) {
+          return;
+        }
+        wakeControls();
+        if (p.paused()) {
+          p.play()?.catch(() => {});
+        } else {
+          p.pause();
+        }
+      });
+    });
+
+    try {
+      // @ts-expect-error no ts definition for mobileUi
+      player.value!.mobileUi({
+        touchControls: {
+          seekSeconds: 10,
+          tapTimeout: 300,
+          disableOnEnd: false,
+          disabled: false,
+        },
+      });
+    } catch (e) {
+      console.warn("videojs-mobile-ui init warning:", e);
+    }
   } catch (error) {
     console.error("Error initializing video player:", error);
   }
@@ -92,6 +132,8 @@ const initVideoPlayer = async () => {
 
 const getOptions = (...srcOpt: any[]) => {
   const options = {
+    fill: true,
+    responsive: true,
     controlBar: {
       skipButtons: {
         forward: 5,

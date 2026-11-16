@@ -1,7 +1,7 @@
 <template>
   <div
     id="previewer"
-    @touchmove.prevent
+    @touchmove="handleTouchMove"
     @wheel.prevent.stop
     @mousemove="toggleNavigation"
     @touchstart="toggleNavigation"
@@ -478,6 +478,21 @@ const prefetchUrl = (item: ResourceItem) => {
 };
 
 const toggleSize = () => (fullSize.value = !fullSize.value);
+
+const handleTouchMove = (e: TouchEvent) => {
+  const target = e.target as HTMLElement | null;
+  if (
+    target &&
+    (target.closest(".video-js") ||
+      target.closest(".vjs-control-bar") ||
+      target.closest(".vjs-progress-control") ||
+      target.closest(".epub-reader") ||
+      target.closest(".csv-viewer"))
+  ) {
+    return;
+  }
+  e.preventDefault();
+};
 
 const toggleNavigation = throttle(function () {
   showNav.value = true;
