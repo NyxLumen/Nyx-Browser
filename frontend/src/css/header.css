@@ -45,6 +45,7 @@ header img {
 header img {
   height: 28px;
   width: auto;
+  object-fit: contain;
 }
 
 header .action span {

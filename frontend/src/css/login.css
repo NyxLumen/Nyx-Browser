@@ -7,15 +7,17 @@
   height: 100%;
 }
 
-#login img {
-  height: 48px;
+#login img,
+#login .login-logo {
+  height: 36px;
   width: auto;
   max-width: 100%;
-  margin: 0 auto 1em;
+  margin: 0 auto 1.5em;
   display: block;
+  object-fit: contain;
 }
 
-#login h1 {
+#login h1:not(.sr-only) {
   text-align: center;
   font-size: 1.5em;
   margin: 0.4em 0 0.67em;
@@ -26,7 +28,7 @@
   top: 50%;
   left: 50%;
   transform: translate(-50%, -50%);
-  max-width: 16em;
+  max-width: 18em;
   width: 90%;
 }
 
